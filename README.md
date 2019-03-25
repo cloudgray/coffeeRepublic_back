@@ -1,4 +1,3 @@
 # coffeeRepublic_back
-
-# npm install
-# node app.js
+npm install
+node app.js
