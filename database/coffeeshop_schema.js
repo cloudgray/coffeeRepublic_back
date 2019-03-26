@@ -23,11 +23,11 @@ Schema.createSchema = function(mongoose) {
 		return this.find({}, callback);
 	});
 	
-	// 가장 가까운 커피숍 조회
-	CoffeeShopSchema.static('findNear', function(longitude, latitude, maxDistance, callback) {
+	// 가까운 커피숍 num개 조회
+	CoffeeShopSchema.static('findNear', function(longitude, latitude, maxDistance, num, callback) {
 		console.log('CoffeeShopSchema의 findNear 호출됨.');
 
-		this.find().where('geometry').near({center:{type:'Point', coordinates:[parseFloat(longitude), parseFloat(latitude)]}, maxDistance:maxDistance}).limit(1).exec(callback);
+		this.find().where('geometry').near({center:{type:'Point', coordinates:[parseFloat(longitude), parseFloat(latitude)]}, maxDistance:maxDistance}).limit(num).exec(callback);
 	});
 	
 	// 일정 범위 내의 커피숍 조회

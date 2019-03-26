@@ -1,9 +1,8 @@
-﻿/**
- * 사용자 정보 스키마
- *
- * @date 2016-11-10
- * @author Mike
- */
+﻿//
+// 쿠폰 정보 등 스키마 수정 필요
+//
+//
+//
 
 var crypto = require('crypto');
 
