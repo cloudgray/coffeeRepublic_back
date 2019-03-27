@@ -21,7 +21,7 @@ module.exports = function(passport) {
     });
 	
     // 로그아웃
-    router.route('/logout').get(function(req, res) {
+    router.route('/api/logout').get(function(req, res) {
         console.log('/logout 패스 요청됨.');
         req.logout();
         res.redirect('/');
@@ -29,14 +29,14 @@ module.exports = function(passport) {
 
 
     // 로그인 인증
-    router.route('/login').post(passport.authenticate('local-login', {
+    router.route('/api/login').post(passport.authenticate('local-login', {
         successRedirect : '/profile', 
         failureRedirect : '/login', 
         failureFlash : true 
     }));
 
     // 회원가입 인증
-    router.route('/signup').post(passport.authenticate('local-signup', {
+    router.route('/api/signup').post(passport.authenticate('local-signup', {
         successRedirect : '/profile', 
         failureRedirect : '/signup', 
         failureFlash : true 
