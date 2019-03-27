@@ -1,6 +1,6 @@
 /**
  * 패스포트 기본 설정 파일
- * 
+ *
  * 패스포트 설정을 위한 기본 파일로 passport 폴더에 있는 설정 파일들을 사용함
  * serializeUser, deserializeUser 메소드 설정
  *
@@ -35,7 +35,7 @@ module.exports = function (app, passport) {
         // 사용자 정보 중 id나 email만 있는 경우 사용자 정보 조회 필요 - 여기에서는 user 객체 전체를 패스포트에서 관리
         // 두 번째 파라미터로 지정한 사용자 정보는 req.user 객체로 복원됨
         // 여기에서는 파라미터로 받은 user를 별도로 처리하지 않고 그대로 넘겨줌
-        done(null, user);  
+        done(null, user);
     });
 
 	// 인증방식 설정
@@ -43,6 +43,6 @@ module.exports = function (app, passport) {
 	passport.use('local-signup', local_signup);
 	passport.use('facebook', facebook(app, passport));
 	passport.use('google', google(app, passport));
-	console.log('5가지 passport 인증방식 설정됨.');
-	
+	console.log('4가지 passport 인증방식 설정됨.');
+
 };

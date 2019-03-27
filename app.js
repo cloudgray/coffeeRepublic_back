@@ -12,7 +12,7 @@ var bodyParser = require('body-parser')
 
 // Session 미들웨어 불러오기
 var expressSession = require('express-session');
-  
+
 // Passport 사용
 var passport = require('passport');
 var flash = require('connect-flash');
@@ -25,7 +25,7 @@ var database = require('./database/database');
 
 // 로그 모듈
 var logger = require('morgan');
- 
+
 const coffeeshops = require('./routes/coffeeshops');
 const devices = require('./routes/devices');
 const items = require('./routes/items');
@@ -39,7 +39,7 @@ var app = express();
 //===== 서버 변수 설정 및 static으로 public 폴더 설정  =====//
 console.log('config.server_port : %d', config.server_port);
 app.set('port', process.env.PORT || 3000);
- 
+
 
 // body-parser를 이용해 application/x-www-form-urlencoded 파싱
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -52,9 +52,9 @@ app.use(logger('dev'));
 
 // public 폴더를 static으로 오픈
 app.use('/public', static(path.join(__dirname, 'public')));
- 
+
 // cookie-parser 설정
-app.use(cookieParser());
+app.use(cookieParser());	//??
 
 // 세션 설정
 app.use(expressSession({
@@ -70,7 +70,7 @@ app.use(expressSession({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
- 
+
 
 // 패스포트 설정
 var configPassport = require('./config/passport');
@@ -78,14 +78,22 @@ configPassport(app, passport);
 
 // 패스포트 라우팅 설정
 var userPassport = require('./routes/user_passport');
-userPassport(passport);
+var router = express.Router();
+userPassport(router, passport);
 
 
+app.use('/', router);
 app.use('/api/coffeeshops', coffeeshops);
 app.use('/api/devices', devices);
 app.use('/api/items', items);
 app.use('/api/users', users);
 
+/*
+app.post('/signup', passport.authenticate('local-signup'), (req, res) => {
+  if (req.user) return res.status(404).json({success:false, message:'이미 가입된 이메일입니다.'});
+  res.status(200).json({success:true, message:'회원가입 성공'});
+});
+*/
 
 
 //===== 서버 시작 =====//
@@ -94,7 +102,7 @@ app.use('/api/users', users);
 process.on('uncaughtException', function (err) {
 	console.log('uncaughtException 발생함 : ' + err);
 	console.log('서버 프로세스 종료하지 않고 유지함.');
-	
+
 	console.log(err.stack);
 });
 
@@ -111,11 +119,11 @@ app.on('close', function () {
 	}
 });
 
-// 시작된 서버 객체를 리턴받도록 합니다. 
+// 시작된 서버 객체를 리턴받도록 합니다.
 var server = http.createServer(app).listen(app.get('port'), function(){
 	console.log('서버가 시작되었습니다. 포트 : ' + app.get('port'));
 
 	// 데이터베이스 초기화
 	database.init(app, config);
-   
+
 });
