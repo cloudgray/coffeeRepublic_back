@@ -7,7 +7,7 @@ module.exports = {
 	db_url: 'mongodb://localhost:27017/local',
 	db_schemas: [
 	    {file:'./user_schema', collection:'users6', schemaName:'UserSchema', modelName:'UserModel'}
-        , {file:'./device_schema', collection:'devices', schemaName:'DeviceSchema', modelName:'DeviceModel'}
+    , {file:'./device_schema', collection:'devices', schemaName:'DeviceSchema', modelName:'DeviceModel'}
 		, {file:'./coffeeshop_schema', collection:'coffeeshops', schemaName:'CoffeeShopSchema', modelName:'CoffeeshopModel'}
 		, {file:'./item_schema', collection:'items', schemaName:'ItemSchema', modelName:'ItemModel'}
 	],
