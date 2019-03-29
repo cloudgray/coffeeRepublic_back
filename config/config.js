@@ -3,7 +3,7 @@
  */
 
 module.exports = {
-	server_port: 8080,
+	server_port: 80,
 	db_uri: 'mongodb://localhost:27017/local',
 	db_schemas: [
 	    {file:'./user_schema', collection:'users6', schemaName:'UserSchema', modelName:'UserModel'}
