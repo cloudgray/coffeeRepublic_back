@@ -4,7 +4,7 @@
 
 module.exports = {
 	server_port: 80,
-	db_url: 'mongodb+srv://ckh:1234@coffeerepublic-i2ndc.mongodb.net/test?retryWrites=true',
+	db_url: 'mongodb://localhost:27017/local',
 	db_schemas: [
 	    {file:'./user_schema', collection:'users6', schemaName:'UserSchema', modelName:'UserModel'}
         , {file:'./device_schema', collection:'devices', schemaName:'DeviceSchema', modelName:'DeviceModel'}
