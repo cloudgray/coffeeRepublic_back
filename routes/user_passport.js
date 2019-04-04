@@ -28,6 +28,7 @@ module.exports = function(router, passport) {
   router.route('/logout').get(function(req, res) {
     console.log('/logout 패스 요청됨.');
     req.logout();
+    res.status(200).json({success:true, message:'로그아웃되었습니다.'});
     res.redirect('/');
   });
 
@@ -47,9 +48,9 @@ module.exports = function(router, passport) {
     var fmsg = req.flash('signupMessage');
     if (fmsg !== '') {   // 회원가입 실패시 회원가입 페이지로 리다이렉트, flash message를 클라이언트에 전송
       console.log('flash message : ' + fmsg);
-      return res.status(200).json({message:fmsg});
+      return res.status(404).json({success:false, message:fmsg});
     }
-    res.status(200).json({message:'회원가입 페이지'});
+    res.status(200).json({success:true, message:'회원가입 페이지'});
 
   });
 

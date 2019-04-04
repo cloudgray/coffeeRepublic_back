@@ -26,6 +26,10 @@ var database = require('./database/database');
 // 로그 모듈
 var logger = require('morgan');
 
+// API 명세 작성 자동화를 위한 Swagger 미들웨어 불러오기
+// var swagger = require('./swagger');
+
+// 라우팅 미들웨어
 const coffeeshops = require('./routes/coffeeshops');
 const devices = require('./routes/devices');
 const items = require('./routes/items');
@@ -88,12 +92,9 @@ app.use('/api/devices', devices);
 app.use('/api/items', items);
 app.use('/api/users', users);
 
-/*
-app.post('/signup', passport.authenticate('local-signup'), (req, res) => {
-  if (req.user) return res.status(404).json({success:false, message:'이미 가입된 이메일입니다.'});
-  res.status(200).json({success:true, message:'회원가입 성공'});
-});
-*/
+// swagger 미들웨어 사용
+// app.use('/api-docs', swagger.swaggerUi.serve, swagger.swaggerUi.setup(swagger.swaggerSpec));
+
 
 
 //===== 서버 시작 =====//
