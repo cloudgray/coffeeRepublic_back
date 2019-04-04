@@ -6,34 +6,30 @@ var express = require('express')
 
 // Express의 미들웨어 불러오기
 var bodyParser = require('body-parser')
-  , cookieParser = require('cookie-parser')
-  , static = require('serve-static')
-  , errorHandler = require('errorhandler');
-
-// Session 미들웨어 불러오기
-var expressSession = require('express-session');
-
-// Passport 사용
-var passport = require('passport');
-var flash = require('connect-flash');
+  , static = require('serve-static');
 
 // 모듈로 분리한 설정 파일 불러오기
 var config = require('./config/config');
 
-// 모듈로 분리한 데이터베이스 파일 불러오기
-var database = require('./database/database');
+// db 연결
+var db = mongoose.connection;
+db.on('error', console.error);
+db.once('open', function(){
+    console.log("Connected to mongodb server");
+});
+
+mongoose.connect(config.db);
 
 // 로그 모듈
 var logger = require('morgan');
 
-// API 명세 작성 자동화를 위한 Swagger 미들웨어 불러오기
-// var swagger = require('./swagger');
 
 // 라우팅 미들웨어
 const coffeeshops = require('./routes/coffeeshops');
 const devices = require('./routes/devices');
 const items = require('./routes/items');
 const users = require('./routes/users');
+
 
 
 // 익스프레스 객체 생성
@@ -54,46 +50,15 @@ app.use(bodyParser.json());
 // logger 사용
 app.use(logger('dev'));
 
-// public 폴더를 static으로 오픈
-app.use('/public', static(path.join(__dirname, 'public')));
+// set the secret key variable for jwt
+app.set('jwt-secret', config.secret);
 
-// cookie-parser 설정
-app.use(cookieParser());	//??
-
-// 세션 설정
-app.use(expressSession({
-	secret:'my key',
-	resave:true,
-	saveUninitialized:true
-}));
-
-
-
-//===== Passport 사용 설정 =====//
-// Passport의 세션을 사용할 때는 그 전에 Express의 세션을 사용하는 코드가 있어야 함
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(flash());
-
-
-// 패스포트 설정
-var configPassport = require('./config/passport');
-configPassport(app, passport);
-
-// 패스포트 라우팅 설정
-var userPassport = require('./routes/user_passport');
-var router = express.Router();
-userPassport(router, passport);
-
-
-app.use('/', router);
 app.use('/api/coffeeshops', coffeeshops);
 app.use('/api/devices', devices);
 app.use('/api/items', items);
 app.use('/api/users', users);
 
-// swagger 미들웨어 사용
-// app.use('/api-docs', swagger.swaggerUi.serve, swagger.swaggerUi.setup(swagger.swaggerSpec));
+
 
 
 

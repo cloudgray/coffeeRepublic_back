@@ -1,4 +1,37 @@
 ﻿const router = require('express').Router();
+const jwt = require('jsonwebtoken');
+var User =  require('../database/user_model')
+
+
+
+router.psot('signup', (req, res) => {
+	if (!User)	return res.status(500).json({success:false, message:'db failure'});
+	var email = req.body.email;
+	var password = req.body.password;
+	
+	User.findOne({email: email}, (err, user))
+})
+
+
+
+router.post('/login', (req, res, next) => { 
+	const { email, password } = req.body
+	
+	// user 정보 확인하고 jwt 생성
+	const check (user) => {
+		if (!user) {
+			throw new Error('login failed');
+		} else {
+			// user가 존재한다면 password check
+			if (user.verify)
+		}
+	}
+	
+})
+
+
+
+
 
 router.get('/list', (req, res, next) => {
   if (req.isAuthenticated()) { // 현재 session이 유효한 세션인가?
