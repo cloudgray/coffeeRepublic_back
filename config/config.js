@@ -3,18 +3,18 @@
  */
 
 module.exports = {
-	server_port: 3000,
-	db_url: 'mongodb://localhost:27017/local',
+	server_port: 80,
+	db_uri: 'mongodb://localhost:27017/local',
 	db_schemas: [
 	    {file:'./user_schema', collection:'users6', schemaName:'UserSchema', modelName:'UserModel'}
-        , {file:'./device_schema', collection:'devices', schemaName:'DeviceSchema', modelName:'DeviceModel'}
+    , {file:'./device_schema', collection:'devices', schemaName:'DeviceSchema', modelName:'DeviceModel'}
 		, {file:'./coffeeshop_schema', collection:'coffeeshops', schemaName:'CoffeeShopSchema', modelName:'CoffeeshopModel'}
 		, {file:'./item_schema', collection:'items', schemaName:'ItemSchema', modelName:'ItemModel'}
 	],
 	facebook: {		// passport facebook
 		clientID: '1442860336022433',
 		clientSecret: '13a40d84eb35f9f071b8f09de10ee734',
-		callbackURL: 'http://localhost:3000/auth/facebook/callback'
+		callbackURL: 'http://localhost:80/auth/facebook/callback'
 	},
 	twitter: {		// passport twitter
 		clientID: 'id',
@@ -26,5 +26,9 @@ module.exports = {
 		clientSecret: 'secret',
 		callbackURL: '/auth/google/callback'
 	},
+<<<<<<< HEAD
 	fcm_api_key:'AIzaSyA_W-ajhqNb76iZHLbaVW30Ytt2_2E5Lpc'
+=======
+	fcm_api_key:'AAAA_b17X-4:APA91bEOAH0oYbwFx2x4aeNJpz-X-i6BBsEaKz4Khyet7Q9xTGW6SIgJec66_TBPqi4ZxUbCtJ87ZcFNbLweg0IzubLbsfKRtcvmaFxV-6kqcZVFJVhzvDHExfeK4rltvfhWA83MoxOPVhTUFnEOUnt9xiC6nt_Ypg'
+>>>>>>> 2271521f5d4569b46a797bf4c691517738670fd5
 }

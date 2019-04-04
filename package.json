@@ -1,6 +1,6 @@
 {
-  "name": "MobileExample",
-  "version": "0.0.1",
+  "name": "coffeerepublic_back",
+  "version": "0.0.2",
   "private": true,
   "scripts": {
     "start": "node app.js"
@@ -14,9 +14,9 @@
     "express": "^4.14.0",
     "express-error-handler": "^1.1.0",
     "express-session": "^1.14.2",
-    "mongoose": "^4.6.6",
+    "mongoose": "^5.4.20",
     "morgan": "^1.9.1",
-    "node-gcm": "^0.14.4",
+    "node-gcm": "^1.0.2",
     "passport": "^0.3.2",
     "passport-facebook": "^2.1.1",
     "passport-google-oauth": "^1.0.0",

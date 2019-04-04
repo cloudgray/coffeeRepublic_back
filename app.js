@@ -42,7 +42,7 @@ var app = express();
 
 //===== 서버 변수 설정 및 static으로 public 폴더 설정  =====//
 console.log('config.server_port : %d', config.server_port);
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || config.server_port);
 
 
 // body-parser를 이용해 application/x-www-form-urlencoded 파싱
