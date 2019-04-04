@@ -3,7 +3,7 @@
  */
 
 module.exports = {
-	server_port: 80,
+	server_port: 3000,
 	db_uri: 'mongodb://localhost:27017/local',
 	db_schemas: [
 	    {file:'./user_schema', collection:'users6', schemaName:'UserSchema', modelName:'UserModel'}
@@ -26,9 +26,6 @@ module.exports = {
 		clientSecret: 'secret',
 		callbackURL: '/auth/google/callback'
 	},
-<<<<<<< HEAD
+
 	fcm_api_key:'AIzaSyA_W-ajhqNb76iZHLbaVW30Ytt2_2E5Lpc'
-=======
-	fcm_api_key:'AAAA_b17X-4:APA91bEOAH0oYbwFx2x4aeNJpz-X-i6BBsEaKz4Khyet7Q9xTGW6SIgJec66_TBPqi4ZxUbCtJ87ZcFNbLweg0IzubLbsfKRtcvmaFxV-6kqcZVFJVhzvDHExfeK4rltvfhWA83MoxOPVhTUFnEOUnt9xiC6nt_Ypg'
->>>>>>> 2271521f5d4569b46a797bf4c691517738670fd5
 }

@@ -29,7 +29,7 @@ module.exports = function(router, passport) {
     console.log('/logout 패스 요청됨.');
     req.logout();
     res.status(200).json({success:true, message:'로그아웃되었습니다.'});
-    res.redirect('/');
+    // res.redirect('/');
   });
 
   router.get('/login', (req, res) => {
@@ -37,11 +37,13 @@ module.exports = function(router, passport) {
   });
 
   // 로그인 인증
-  router.route('/login').post(passport.authenticate('local-login', {
-    successRedirect: '/',
-    failureRedirect: '/login',
-    failureFlash: true
-  }));
+  router.route('/login').post(passport.authenticate('local-login'), (req, res) => {
+	  console.log('req 헤더');
+	  console.dir(req.headers);
+	  res.status(200).json({success:true});
+	  console.log('res 객체');
+	  console.dir(res);
+  });
 
 
   router.get('/signup', (req, res) => {

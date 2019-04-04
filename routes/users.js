@@ -1,6 +1,12 @@
 ﻿const router = require('express').Router();
 
-router.get('/list', (req, res) => {
+router.get('/list', (req, res, next) => {
+  if (req.isAuthenticated()) { // 현재 session이 유효한 세션인가?
+      // 유효 하므로 다음으로
+      return next();
+  }
+  // 유효하지 않은 경우
+  res.status(401).json({message:"정상적인 접근이 아닙니다."});}, (req, res) => {
 	console.log('user 모듈 안에 있는 listuser 호출됨.');
 
 	// 데이터베이스 객체 참조
