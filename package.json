@@ -6,26 +6,13 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.15.2",
-    "connect-flash": "^0.1.1",
-    "cookie-parser": "^1.4.3",
-    "ejs": "^2.5.2",
-    "errorhandler": "^1.4.3",
     "express": "^4.14.0",
-    "express-error-handler": "^1.1.0",
-    "express-session": "^1.14.2",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.4.20",
     "morgan": "^1.9.1",
     "node-gcm": "^1.0.2",
-    "passport": "^0.3.2",
-    "passport-facebook": "^2.1.1",
-    "passport-google-oauth": "^1.0.0",
-    "passport-local": "^1.0.0",
-    "passport-twitter": "^1.0.4",
-    "randomstring": "^1.1.5",
-    "serve-static": "^1.11.2",
-    "swagger-jsdoc": "^3.2.8",
-    "swagger-ui-express": "^4.0.2"
+    "randomstring": "^1.1.5"
   }
 }
