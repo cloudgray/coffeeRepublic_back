@@ -10,8 +10,13 @@ var userSchema = mongoose.Schema({
     },
     nickname: {type: String, trim: true, unique: true},
     password: {type: String, select: false},
+    isStaff: {type:Boolean, default:false},
+    isOwner: {type:Boolean, default:false},
+    myCafeId: {type:String, default:''},
+    myCafeIds: {type:Array, defalut:[]},
+    myOwnCoffeeshopId: {type:String, default:''},
     created_at: {type: Date, index: {unique: false}, default: Date.now},
-	  updated_at: {type: Date, index: {unique: false}, default: Date.now}
+    updated_at: {type: Date, index: {unique: false}, default: Date.now}
 }, {
     toObject: { virtuals: true}
 });

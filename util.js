@@ -1,6 +1,7 @@
 
 const jwt = require('jsonwebtoken');
 const config = require('./config/config'); 
+var User = require('./models/model_user');
 
 var util = {};
 
@@ -51,5 +52,29 @@ util.isLoggedin = function(req,res,next){
     });
   }
 };
+
+// private functions
+util.isStaff = function(req, res, next) {
+	User.findOne({
+		_id: req.decoded._id
+	}, (err, user) => {
+		if (err || !user) return res.json(util.successFalse(err));
+		else if (!req.decoded || !user.isStaff)
+			return res.json(util.successFalse(null, 'You don\'t have permission'));
+		else next();
+	});
+}
+
+// private functions
+util.isOwner = function(req, res, next) {
+	User.findOne({
+		_id: req.decoded._id
+	}, (err, user) => {
+		if (err || !user) return res.json(util.successFalse(err));
+		else if (!req.decoded || !user.isOwner)
+			return res.json(util.successFalse(null, 'You don\'t have permission'));
+		else next();
+	});
+}
 
 module.exports = util;

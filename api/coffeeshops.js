@@ -1,142 +1,122 @@
 
 const router = require('express').Router();
-var Coffeeshop = require('../models/model_coffeeshop');
+const randomstring = require('randomstring');
+const Coffeeshop = require('../models/model_coffeeshop');
+const User = require('../models/model_user');
+const util = require('../util');
 
 
-router.post('/register', (req, res) => {
+// 카페 등록 - 스테프로 로그인해야 한다
+router.post('/', util.isLoggedin, util.isStaff, (req, res) => {
 	console.log('POST api/coffeeshop/register called');
-	
-	
 		
-	var coffeeshop = new Coffeeshop({ 
-		name:req.body.name, 
-		address:req.body.address, 
-		tel:req.body.tel,
-		geometry: { 
-			type: 'Point', 
-			coordinates: [req.body.longitude, req.body.latitude]
-		}
-	});
-
+	var newCoffeeshop = new Coffeeshop(req.body);
+  if (newCoffeeshop.geometry.coordinates[0] > 90) newCoffeeshop.geometry.coordinates[0] -= 90;
+  if (newCoffeeshop.geometry.coordinates[1] > 90) newCoffeeshop.geometry.coordinates[1] -= 90;
+  newCoffeeshop.coffeeshopId = randomstring.generate(10);
+  
 	// save()로 저장
-	coffeeshop.save((err, result) => {
-		if (err) {
-			console.error('커피숍 추가 중 에러 발생 : ' + err.stack);
-			res.status(400).json({error: '커피숍 추가 중 에러 발생'});
-		}
-
-		if (result) {
-			console.log('커피숍 등록 성공');
-			console.dir(result);
-			res.status(200).json({success:true});
-		} else {
-			console.log('커피숍 등록 실패');
-			res.status(400).json({success:false});
-		}
-	});	
-
+	newCoffeeshop.save((err, coffeeshop) => {
+		if (err) return res.status(500).json(util.successFalse(err));
+		if (!coffeeshop) return res.status(404).json(util.successFalse(null, '커피숍 등록 실패'));
+    
+    User.findById(req.decoded._id, (err, user) => {
+      user.myOwnCafeId = newCoffeeshop._id;   // _id는 db에 저장할 때 자동 생성되는 id 값
+      user.save();
+    });
+    
+    res.status(200).json(util.successTrue(coffeeshop));
+	});
+  
 });
 
-router.get('/list', (req, res) => {
-	console.log('GET /api/coffeeshop/list called');
+// 카페 리스트 가져오기
+router.get('/', (req, res) => {
+	console.log('GET /api/coffeeshop called');
  
-	var database = req.app.get('database');
-	if (database.db) {
-		// 모든 커피숍 검색
-		database.CoffeeShopModel.findAll((err, results) => {
-			if (err) {
-                console.error('커피숍 리스트 조회 중 에러 발생 : ' + err.stack);
-                return res.status(400).json({message:'커피숍 리스트 조회 중 에러 발생'});
-            }
-			  
-			if (results) {
-				console.dir(results);
- 				return res.status(200).json(results);
-				/*
-				for (var i = 0; i < results.length; i++) {
-					var curName = results[i]._doc.name;
-					var curAddress = results[i]._doc.address;
-					var curTel = results[i]._doc.tel;
-					var curLongitude = results[i]._doc.geometry.coordinates[0];
-					var curLatitude = results[i]._doc.geometry.coordinates[1];
-				}	
-				*/
-			} else {
-				res.status(404).json({message:'커피숍 리스트를 찾을 수 없습니다.'})
-			}
-		});
-	} else {
-		res.status(500).json({error:'데이터베이스 연결 실패'})
-	}
+  Coffeeshop.find({"deprecated":false}, (err, coffeeshops) => {
+    if (err) return res.status(500).json(util.successFalse(err));
+    if (!coffeeshops) return res.status(404).json(util.successFalse(null, '등록된 카페가 없습니다.'));
+    res.status(200).json(util.successTrue(coffeeshops));
+  });
+	
+  /*
+  for (var i = 0; i < results.length; i++) {
+    var curName = results[i]._doc.name;
+    var curAddress = results[i]._doc.address;
+    var curTel = results[i]._doc.tel;
+    var curLongitude = results[i]._doc.geometry.coordinates[0];
+    var curLatitude = results[i]._doc.geometry.coordinates[1];
+  }	
+  */
+  
 });
 
 // 가까운 커피숍 10개 조회
-router.get('/findnear', (req, res) => {
+router.get('/near', (req, res) => {
 	console.log('coffeeshop 모듈 안에 있는 findNear 호출됨.');
   
 	var maxDistance = 3000;
-    var paramLongitude = req.query.longitude;
-    var paramLatitude = req.query.latitude;
+  var longitude = req.query.longitude;
+  var latitude = req.query.latitude;
 	
-    console.log('요청 파라미터 : ' + paramLongitude + ', ' + paramLatitude);
-    
-	var database = req.app.get('database');
-	if (database.db) {
+  console.log('요청 파라미터 : ' + longitude + ', ' + latitude);
 		// 가까운 커피숍 10개 검색
-		database.CoffeeShopModel.findNear(paramLongitude, paramLatitude, maxDistance, 10, (err, results) => {
-			if (err) {
-                console.error('커피숍 검색 중 에러 발생 : ' + err.stack);
-                return res.status(400).json({message:'커피숍 검색 중 에러 발생'});
-            }
-			  
-			if (results) {
-				console.dir(results);
-				console.status(200).json(results);
-			} else {
-				console.log('가까운 커피숍 없음');
-				res.status(404).json({message:'가까운 커피숍 없음'});
-			}
-		});
-	} else {
-		res.status(500).json({error:'데이터베이스 연결 실패'});
-	}
-	
-});
-
-
-
-
-router.get('./findcircle', (req, res) => {
-	console.log('coffeeshop 모듈 안에 있는 findCircle 호출됨.');
+  Coffeeshop.findNear(longitude, latitude, maxDistance, 10, (err, coffeeshops) => {
+    if (err) return res.status(400).json(util.successFalse(err, '잘못된 요청입니다.')); 
+    if (!coffeeshops) return res.status(404).json(util.successFalse(null, '주변에 예약 주문이 가능한 카페가 없습니다.ㅠㅠ'));
+    res.status(200).json(util.successTrue(coffeeshops));
+  });
   
-    var paramCenterLongitude = req.body.center_longitude || req.query.center_longitude;
-    var paramCenterLatitude = req.body.center_latitude || req.query.center_latitude;
-    var paramRadius = req.body.radius || req.query.radius;
-	
-    console.log('요청 파라미터 : ' + paramCenterLongitude + ', ' + paramCenterLatitude + ', ' + 
-               paramRadius);
-    
-	var database = req.app.get('database');
-	
-	if (database.db) {
-		database.CoffeeShopModel.findCircle(paramCenterLongitude, paramCenterLatitude, paramRadius, function(err, results) {
-			if (err) {
-                console.error('커피숍 검색 중 에러 발생 : ' + err.stack);
-                return res.status(400).json({message:'커피숍 검색 중 에러 발생'});
-            }
-			  
-			if (results) {
-				console.dir(results);
-				res.status(200).json(results);
-			} else {
-				res.status(404).json({message:'반경 내 커피숍 검색 실패'})
-			}
-		});
-	} else {
-		res.status(500).json({error:'데이터베이스 연결 실패'});
-	}
-	
 });
+
+// 카페 상세정보 가져오기
+router.get('/:coffeeshopId', (req, res) => {
+  console.log('GET /:coffeeshopId called');
+  Coffeeshop.findById(req.params.coffeeshopId, (err, coffeeshop) => {
+    if (err) return res.status(400).json(util.successFalse(err, '잘못된 요청입니다.')); 
+    if (!coffeeshop) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
+    res.status(200).json(util.successTrue(coffeeshop));
+  });
+});
+
+
+// 카페 정보 수정
+router.put('/:coffeeshopId', util.isLoggedin, util.isStaff, (req, res) => {
+  console.log('PUT /:coffeeshopId called');
+  Coffeeshop.findById(req.params.coffeeshopId, (err, coffeshop) => {
+    if (err) return res.status(400).json(util.successFalse(err, '잘못된 요청입니다.')); 
+    if (!coffeeshop) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
+    
+    for (var p in req.body) {
+			coffeeshop[p] = req.body[p];
+		}
+    coffeeshop.updated_at = Date.now;
+    coffeeshop.save((err, coffeeshop) => {
+      if (err) return res.status(400).json(util.successFalse(err, '카페 정보 수정 실패'));
+      res.status(200).json(util.successTrue(coffeeshop));
+    }); 
+  });
+});
+
+
+// 카페 탈퇴
+router.put('/:coffeeshopId/unregister', util.isLoggedin, util.isOwner, (req, res) => {
+  console.log('PUT /:coffeeshopId/unregister called');
+  Coffeeshop.findById(req.params.coffeeshopId, (err, coffeshop) => {
+    if (err) return res.status(400).json(util.successFalse(err, '잘못된 요청입니다.')); 
+    if (!coffeeshop) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
+    
+    coffeeshop.deprecated = true;
+    coffeeshop.updated_at = Date.now;
+    coffeeshop.save((err, coffeeshop) => {
+      if (err) return res.status(400).json(util.successFalse(err, '카페 탈퇴 실패'));
+      res.status(200).json(util.successTrue(coffeeshop));
+    }); 
+  });
+});
+
+
 
 
 

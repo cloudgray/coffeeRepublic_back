@@ -21,6 +21,29 @@ router.post('/', (req, res, next) => {
 	});
 });
 
+// staff signup
+// 닉네임 중복검사 아직 안 만듦
+router.post('/staffs', (req, res, next) => {
+	console.log('POST /api/users 호출됨');
+	User.findOne({
+		email: req.body.email
+	}, (err, user) => {
+		if (err) return res.status(400).json(util.successFalse(err));
+		if (user) {
+      user.isStaff = true;
+      user.save((err, user) => {
+        if (err) return res.status(500).json(util.successFalse(err));
+        res.status(200).json(util.successTrue(user));
+      });
+    }
+		var newUser = new User(req.body);
+		
+		newUser.save((err, user) => {
+			res.json(err || !user ? util.successFalse(err) : util.successTrue(user));
+		});
+	});
+});
+
 // 내 정보 조회
 router.get('/me', util.isLoggedin, (req,res,next) => {
     User.findById(req.decoded._id)
@@ -62,6 +85,13 @@ router.delete('/me', util.isLoggedin, checkPermission, (req, res, next) => {
 		});
 });
 
+// myCafe 목록에 카페 추가
+//
+//
+
+// 메인 화면에 표시뢷 myCafe(1개) 등록하기
+//
+//
 
 // private functions
 function checkPermission(req, res, next) {

@@ -12,6 +12,7 @@ var CoffeeShopSchema = new Schema({
 		'type': {type: String, 'default': "Point"},
 		coordinates: [{type: "Number"}]
 	},
+  deprecated: {type:Boolean, default: false},
 	created_at: {type: Date, index: {unique: false}, 'default': Date.now},
 	updated_at: {type: Date, index: {unique: false}, 'default': Date.now}
 });
@@ -21,14 +22,15 @@ CoffeeShopSchema.index({geometry:'2dsphere'});
 // 스키마에 static 메소드 추가
 // 모든 커피숍 조회
 CoffeeShopSchema.static('findAll', function(callback) {
-	return this.find({}, callback);
+	return this.find({"deprecated":false}, callback);
 });
+
 
 // 가까운 커피숍 num개 조회
 CoffeeShopSchema.static('findNear', function(longitude, latitude, maxDistance, num, callback) {
 	console.log('CoffeeShopSchema의 findNear 호출됨.');
 
-	this.find().where('geometry').near({center:{type:'Point', coordinates:[parseFloat(longitude), parseFloat(latitude)]}, maxDistance:maxDistance}).limit(num).exec(callback);
+	this.find({"deprecated":false}).where('geometry').near({center:{type:'Point', coordinates:[parseFloat(longitude), parseFloat(latitude)]}, maxDistance:maxDistance}).limit(num).exec(callback);
 });
 
 // 일정 범위 내의 커피숍 조회
