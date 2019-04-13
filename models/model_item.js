@@ -23,4 +23,4 @@ mongoose.model('Item', ItemSchema);
 
 
 // module.exports에 UserSchema 객체 직접 할당
-module.exports = mongoose.model('items', ItemSchema);
+module.exports = mongoose.model('item', ItemSchema);

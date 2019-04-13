@@ -12,7 +12,7 @@ var CoffeeShopSchema = new Schema({
 		'type': {type: String, 'default': "Point"},
 		coordinates: [{type: "Number"}]
 	},
-  deprecated: {type:Boolean, default: false},
+  deprecated: {type: Boolean, default: false},
 	created_at: {type: Date, index: {unique: false}, 'default': Date.now},
 	updated_at: {type: Date, index: {unique: false}, 'default': Date.now}
 });
@@ -51,7 +51,7 @@ CoffeeShopSchema.static('findCircle', function(center_longitude, center_latitude
 
 
 // module.exports에 UserSchema 객체 직접 할당
-module.exports = mongoose.model('coffeeshops', CoffeeShopSchema);
+module.exports = mongoose.model('coffeeshop', CoffeeShopSchema);
 
 
 

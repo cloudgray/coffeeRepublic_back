@@ -5,7 +5,7 @@ const Coffeeshop = require('../models/model_coffeeshop');
 const Item = require('../models/model_item');
 
 
-// 메뉴
+// 메뉴 목록 가져오기
 router.get('/', (req, res) => {
   Item.find({coffeeshopId:req.body.coffeeshopId}, (err, items) => {
     if (err) return res.status(400).json(util.successFalse(err));

@@ -45,5 +45,5 @@ console.log('DeviceSchema 정의함.');
 
 
 // module.exports에 DeviceSchema 객체 직접 할당
-module.exports = mongoose.model('devices', DeviceSchema);
+module.exports = mongoose.model('device', DeviceSchema);
 
