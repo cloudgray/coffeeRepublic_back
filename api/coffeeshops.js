@@ -1,40 +1,21 @@
 
 const router = require('express').Router();
+const util = require('../util');
 var Coffeeshop = require('../models/model_coffeeshop');
 
 
-router.post('/register', (req, res) => {
-	console.log('POST api/coffeeshop/register called');
+router.post('/', (req, res) => {
+	console.log('POST /api/coffeeshops called');
 	
-	
+	Coffeeshop.find({name:req.body.name, tel:req.body.tel}, (err, shop) => {
+		if (err) return res.status(500).json(util.successFalse(err));
+		if (shop) return res.status(404).json(util.successFalse(null, 'This coffeeshop already exists.'));
 		
-	var coffeeshop = new Coffeeshop({ 
-		name:req.body.name, 
-		address:req.body.address, 
-		tel:req.body.tel,
-		geometry: { 
-			type: 'Point', 
-			coordinates: [req.body.longitude, req.body.latitude]
-		}
+		var newShop = Coffeeshop(req.body);
+		newShop.save((err, shop) => {
+			res.json(err || !shop ? util.successFalse(err) : util.successTrue(shop));
+		});
 	});
-
-	// save()로 저장
-	coffeeshop.save((err, result) => {
-		if (err) {
-			console.error('커피숍 추가 중 에러 발생 : ' + err.stack);
-			res.status(400).json({error: '커피숍 추가 중 에러 발생'});
-		}
-
-		if (result) {
-			console.log('커피숍 등록 성공');
-			console.dir(result);
-			res.status(200).json({success:true});
-		} else {
-			console.log('커피숍 등록 실패');
-			res.status(400).json({success:false});
-		}
-	});	
-
 });
 
 router.get('/list', (req, res) => {

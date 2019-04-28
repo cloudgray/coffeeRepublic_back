@@ -24,7 +24,7 @@ router.post('/', (req, res, next) => {
 // 내 정보 조회
 router.get('/me', util.isLoggedin, (req,res,next) => {
     User.findById(req.decoded._id)
-    .exec(function(err,user){
+    .exec((err,user) => {
       if(err||!user) return res.json(util.successFalse(err));
       res.json(util.successTrue(user));
     });
