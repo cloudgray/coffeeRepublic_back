@@ -8,7 +8,7 @@ var logger = require('morgan');
 var config = require('./config/config');
 
 // 라우팅 미들웨어
-const coffeeshops = require('./api/coffeeshops');
+const cafes = require('./api/cafes');
 const devices = require('./api/devices');
 const items = require('./api/items');
 const users = require('./api/users');
@@ -51,7 +51,7 @@ app.use(function (req, res, next) {
 app.use(logger('dev'));
 
 // API
-app.use('/api/coffeeshops', coffeeshops);
+app.use('/api/cafes', cafes);
 app.use('/api/devices', devices);
 app.use('/api/items', items);
 app.use('/api/users', users);

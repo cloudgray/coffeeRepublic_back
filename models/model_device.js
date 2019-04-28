@@ -5,15 +5,16 @@ var Schema = mongoose.Schema;
 
 // 스키마 정의
 var DeviceSchema = new Schema({
-	mobile: {type: String, index: 'hashed', default:''}
-	, osVersion: {type: String, default:''}
-	, model: {type: String, default:''}
-	, display: {type: String, default:''}
-	, manufacturer: {type: String, default:''}
-	, macAddress: {type: String, default:''}
-	, registrationId: {type: String, default:''}
-	, created_at: {type: Date, index: {unique: false}, default: Date.now}
-	, updated_at: {type: Date, index: {unique: false}, default: Date.now} 
+  deviceId:{type:String, default:''},
+	mobile: {type: String, index: 'hashed', default:''},
+	osVersion: {type: String, default:''},
+	model: {type: String, default:''},
+	display: {type: String, default:''},
+	manufacturer: {type: String, default:''},
+	macAddress: {type: String, default:''},
+	registrationId: {type: String, default:''},
+	created_at: {type: Date, index: {unique: false}, default: Date.now},
+	updated_at: {type: Date, index: {unique: false}, default: Date.now} 
 });
 
 // 입력된 칼럼의 값이 있는지 확인 
@@ -45,5 +46,5 @@ console.log('DeviceSchema 정의함.');
 
 
 // module.exports에 DeviceSchema 객체 직접 할당
-module.exports = mongoose.model('devices', DeviceSchema);
+module.exports = mongoose.model('device', DeviceSchema);
 

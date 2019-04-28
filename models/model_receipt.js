@@ -1,11 +1,20 @@
 var mongoose = require('mongoose');
 
 var ReceiptSchema = mongoose.Schema({
-	coffeeshopId: {type:String, default:''},
-	userId : {type: String},
+	cafeId: {type:String},
+	userId : {type:String},
+  orderId: {type:String},
+  receiptId: {type:String},
 	totalPrice: {type: Number, default:0},
-	contents: {type: Array, default:[]},
-	created_at: {type:Date, default: Date.now()}
+	contents: [
+    {
+      itemName:String, 
+      itemPrice:Number
+    }
+  ],
+  canceled:{type:Boolean, default: false},
+	created_at: {type:Date, default: Date.now},
+  updated_at: {type:Date, default: Date.now}
 });
 
 
