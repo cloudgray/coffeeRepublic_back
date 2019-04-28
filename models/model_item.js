@@ -3,7 +3,8 @@ var mongoose = require('mongoose');
 
 // 스키마 정의
 var ItemSchema = mongoose.Schema({
-  coffeeshopId: {type: String, 'default':''},
+  itemId:{type:String, default:''},
+  cafeId: {type: String, default:''},
 	name: {type: String, index: 'hashed', 'default':''},
 	price: {type: String, 'default':''},
   options: {type: Object, default:{}},

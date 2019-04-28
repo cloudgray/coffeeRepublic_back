@@ -28,14 +28,14 @@ router.post('/login', (req,res,next) => {
   },
   (req,res,next) => {
     User.findOne({email:req.body.email})
-    .select({email:1, nickname:1, password:1})
+    .select({userId, nickname:1, password:1})
     .exec((err,user) => {
       if(err) return res.json(util.successFalse(err));
       else if(!user||!user.authenticate(req.body.password))
          return res.json(util.successFalse(null,'Email or Password is invalid'));
       else {
         var payload = {
-          _id : user._id,
+          userId : user.userId,
           nickname: user.nickname
         };
         var options = {expiresIn: 60*60*24};
@@ -103,7 +103,7 @@ router.get('/refresh', util.isLoggedin, (req,res,next) => {
       if(err||!user) return res.json(util.successFalse(err));
       else {
         var payload = {
-          _id : user._id,
+          userId : user.userId,
           nickname: user.nickname
         };
         var options = {expiresIn: 60*60*24};

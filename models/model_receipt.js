@@ -1,14 +1,15 @@
 var mongoose = require('mongoose');
 
 var ReceiptSchema = mongoose.Schema({
-	coffeeshopId: {type:String},
-	userId : {type: String},
+	cafeId: {type:String},
+	userId : {type:String},
+  orderId: {type:String},
   receiptId: {type:String},
 	totalPrice: {type: Number, default:0},
 	contents: [
     {
-      itemName:{type:String}, 
-      itemPrice:{type:Number}
+      itemName:String, 
+      itemPrice:Number
     }
   ],
   canceled:{type:Boolean, default: false},

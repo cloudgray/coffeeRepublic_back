@@ -1,7 +1,7 @@
 var router = require('express').Router();
 const randomstring = require("randomstring");
 const util = require('../util');
-const Coffeeshop = require('../models/model_coffeeshop');
+const Coffeeshop = require('../models/model_cafe');
 const Item = require('../models/model_item');
 
 

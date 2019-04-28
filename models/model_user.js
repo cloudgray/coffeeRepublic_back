@@ -3,18 +3,22 @@ var bcrypt = require('bcrypt-nodejs');
 
 // schema
 var userSchema = mongoose.Schema({
+    userId: {type:String},
     email: {
         type: String,
         match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Should be a vaild email address!'],
         trim: true
     },
     nickname: {type: String, trim: true, unique: true},
-    password: {type: String, select: false},
-    isStaff: {type:Boolean, default:false},
-    isOwner: {type:Boolean, default:false},
-    myCafeId: {type:String, default:''},
-    myCafeIds: {type:Array, defalut:[]},
-    myOwnCoffeeshopId: {type:String, default:''},
+    password: {type: String, select:false},
+    isStaff: {type:Boolean, default:false},                     // 알바이거나 사장일 경우
+    isOwner: {type:Boolean, default:false},                     // 사장일 경우 isStaff와 isOwner가 둘 다 true
+    isWorking: {type:Boolean,default:false},                    // 근무중일 경우 - 추가
+    myCafeIds: [{type:String}],                                 // 즐겨찾는 카페 목록 - 변경
+    myItemIds: [{type:String}],                  // 메인화면 myCafeMenu의 카페와 메뉴 id - 추가
+    myOwnCafeId: {type:String, default:''},                     // 카페 사장/알바인 경우 일하는 카페의 cafeId - 추가
+    myCoupons: [{cafeId:String, cafeName:String, num:Number}],  // 내 쿠폰함 - 추가
+    myReceiptIds: [{receiptId:String}],                         // 영수증 목록 - 추가
     created_at: {type: Date, index: {unique: false}, default: Date.now},
     updated_at: {type: Date, index: {unique: false}, default: Date.now}
 }, {

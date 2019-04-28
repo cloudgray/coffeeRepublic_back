@@ -1,7 +1,10 @@
 ﻿var router = require('express').Router();
-var User = require('../models/model_user');
-var config = require('../config/config');
-var util = require('../util');
+const randomstring = require('randomstring');
+const User = require('../models/model_user');
+const Cafe = require('../models/model_cafe');
+const Item = require('../models/model_item');
+const config = require('../config/config');
+const util = require('../util');
 
 
 // 회원가입
@@ -14,6 +17,7 @@ router.post('/', (req, res, next) => {
 		if (err) return res.status(500).json(util.successFalse(err));
 		if (user) return res.status(404).json(util.successFalse(null, 'user already exists'));
 		var newUser = new User(req.body);
+    newUser.userId = randomstring.generate(16);
 		
 		newUser.save((err, user) => {
 			res.json(err || !user ? util.successFalse(err) : util.successTrue(user));
@@ -30,13 +34,14 @@ router.post('/staffs', (req, res, next) => {
 	}, (err, user) => {
 		if (err) return res.status(400).json(util.successFalse(err));
 		if (user) {
-      user.isStaff = true;
+      user.isStaff = true;        // 이미 어플을 사용하던 유저가 카페 알바로 취직했을 경우 staff 권한 획득
       user.save((err, user) => {
         if (err) return res.status(500).json(util.successFalse(err));
         res.status(200).json(util.successTrue(user));
       });
     }
 		var newUser = new User(req.body);
+    newUser.userId = randomstring.generate(16);
 		
 		newUser.save((err, user) => {
 			res.json(err || !user ? util.successFalse(err) : util.successTrue(user));
@@ -44,9 +49,18 @@ router.post('/staffs', (req, res, next) => {
 	});
 });
 
+// 카페 알바로 등록
+
+
+// 출근 -> user.isWorking = true 주문 알림이 뜨기 시작
+
+
+// 퇴근 -> user.isWorking = true 주문 알림을 받지 않음
+
+
 // 내 정보 조회
 router.get('/me', util.isLoggedin, (req,res,next) => {
-    User.findById(req.decoded._id)
+    User.findOne({userId:req.decoded.userId})
     .exec(function(err,user){
       if(err||!user) return res.json(util.successFalse(err));
       res.json(util.successTrue(user));
@@ -56,7 +70,7 @@ router.get('/me', util.isLoggedin, (req,res,next) => {
 
 // 비밀번호 변경
 router.put('/password', util.isLoggedin, checkPermission, (req, res, next) => {
-	User.findById(req.decoded._id, (err, user) => {
+	User.findById(req.decoded.userId, (err, user) => {
 		if (err || !user) return res.json(util.successFalse(err));
 
 		// update user object
@@ -79,27 +93,87 @@ router.put('/password', util.isLoggedin, checkPermission, (req, res, next) => {
 
 // 회원탈퇴
 router.delete('/me', util.isLoggedin, checkPermission, (req, res, next) => {
-	User.findOneAndRemove({_id:req.decoded._id})
+	User.findOneAndRemove({userId:req.decoded.userId})
 		.exec((err, user) => {
 			res.json(err || !user ? util.successFalse(err) : util.successTrue(user));
 		});
 });
 
-// myCafe 목록에 카페 추가
-//
-//
+// myCafe 목록 가져오기
+router.get('/mycafes', util.isLoggedin, (req, res) => {
+  User.findOne({userId:req.decoded.userId}, (err, user) => {
+    if (err) return res.status(500).json(util.successFalse(err));
+    if (!user) return res.status(404).json(util.successFalse(null, '등록되지 않은 사용자입니다.'));
+    
+    Cafe.find({cafeId: {$in: user.myCafeIds}}, (err, cafes) => {
+      if (err) return res.status(500).json(util.successFalse(err));
+      if (!cafes) return res.status(404).json(util.successFalse(null, '등록된 마이카페가 없습니다.'));
+      
+      res.status(200).json(util.successTrue(cafes));
+    });
+  });
+});
 
-// 메인 화면에 표시뢷 myCafe(1개) 등록하기
-//
-//
+// myCafe 목록에 카페 추가
+router.put('/mycafes:cafeId', util.isLoggedin, (req, res) => {
+  User.findOne({userId:req.decoded.userId}, (err, user) => {
+    if (err) return res.status(500).json(util.successFalse(err));
+    if (!user) return res.status(404).json(util.successFalse(null, '등록되지 않은 사용자입니다.'));
+    
+    Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
+      if (err) return res.status(500).json(util.successFalse(err));
+      if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
+      
+      user.myCafeIds.push(cafeId);
+      user.save((err, user) => {
+        if (err) return res.status(500).json(util.successFalse(err));
+        res.status(200).json({util.successTrue(user.myCafeIds)});
+      });
+    });
+  });
+});
+
+// myCafeMenu 목록 가져오기
+router.get('/mymenu', util.isLoggedin, (req, res) => {
+  User.findOne({userId:req.decoded.userId}, (err, user) => {
+    if (err) return res.status(500).json(util.successFalse(err));
+    if (!user) return res.status(404).json(util.successFalse(null, '등록되지 않은 사용자입니다.'));
+    
+    Cafe.find({cafeId: {$in: user.myItemIds}}, (err, items) => {
+      if (err) return res.status(500).json(util.successFalse(err));
+      if (!items) return res.status(404).json(util.successFalse(null, '등록된 마이카페메뉴가 없습니다.'));
+      
+      res.status(200).json(util.successTrue(items));
+    });
+  });
+});
+
+// 메인 화면에 표시될 myCafeMenu 목록에 메뉴 추가
+router.put('/mymenu:menuId', util.isLoggedin, (req, res) => {
+  User.findOne({userId:req.decoded.userId}, (err, user) => {
+    if (err) return res.status(500).json(util.successFalse(err));
+    if (!user) return res.status(404).json(util.successFalse(null, '등록되지 않은 사용자입니다.'));
+    
+    Item.findOne({itemId:req.params.menuId}, (err, item) => {
+      if (err) return res.status(500).json(util.successFalse(err));
+      if (!item) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
+      
+      user.myItemIds.push(item.itemId);
+      user.save((err, user) => {
+        if (err) return res.status(500).json(util.successFalse(err));
+        res.status(200).json({util.successTrue(user.myItemIds)});
+      });
+    });
+  });
+});
 
 // private functions
 function checkPermission(req, res, next) {
 	User.findOne({
-		_id: req.decoded._id
+		userId: req.decoded.userId
 	}, (err, user) => {
 		if (err || !user) return res.json(util.successFalse(err));
-		else if (!req.decoded || user._id != req.decoded._id)
+		else if (!req.decoded || user.userId != req.decoded.userId)
 			return res.json(util.successFalse(null, 'You don\'t have permission'));
 		else next();
 	});

@@ -1,8 +1,8 @@
-const router = require('express').Router();
-var fcm = require('node-gcm');
-var Device = require('../models/model_device');
-var config = require('../config/config.js');
-var util = require('../util');
+var router = require('express').Router();
+const fcm = require('node-gcm');
+const Device = require('../models/model_device');
+const config = require('../config/config.js');
+const util = require('../util');
 
 //
 // 아직 수정 안 함.
@@ -16,20 +16,13 @@ router.post('/register', (req, res) => {
 		})
 		.exec((err, device) => {
 			if (err) return res.status(500).json(util.successFalse(err));
-			if (user) return res.status(404).json(util.successFalse(null, 'deivce already registered'));
+			if (device) return res.status(404).json(util.successFalse(null, 'deivce already registered'));
 
-			var newDevice = new Device({
-				"mobile": req.body.mobile,
-				"osVersion": req.body.osVersion,
-				"model": req.body.model,
-				"display": req.body.display,
-				"manufacturer": req.body.manufacturer,
-				"macAddress": req.body.macAddress,
-				"registrationId": req.body.registrationId
-			});
+			var newDevice = new Device(req.body);
+      newDevice.deviceId = randomstring.generate(16);
 			
-			newDevice.save((err) => {
-					if (err, device) return res.status(400).json(util.successFalse(err));
+			newDevice.save((err, device) => {
+					if (err) return res.status(400).json(util.successFalse(err));
 					res.status(200).json(util.successTrue(device));
 			});
 		});
