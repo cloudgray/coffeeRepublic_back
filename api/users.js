@@ -11,6 +11,9 @@ const util = require('../util');
 // 닉네임 중복검사 아직 안 만듦
 router.post('/', (req, res, next) => {
 	console.log('POST /api/users 호출됨');
+  if (!req.body.email || !req.body.nickname || !req.body.password) 
+    return res.status(400).json(util.successFalse(null, 'email/nickname/password required'));
+
 	User.findOne({
 		email: req.body.email
 	}, (err, user) => {
@@ -20,6 +23,7 @@ router.post('/', (req, res, next) => {
     newUser.userId = randomstring.generate(16);
 		
 		newUser.save((err, user) => {
+      console.dir(user);
 			res.json(err || !user ? util.successFalse(err) : util.successTrue(user));
 		});
 	});
@@ -68,28 +72,31 @@ router.get('/me', util.isLoggedin, (req,res,next) => {
   }
 );
 
-// 비밀번호 변경
+
+// 비밀번호 변경 - deprecated
 router.put('/password', util.isLoggedin, checkPermission, (req, res, next) => {
-	User.findById(req.decoded.userId, (err, user) => {
-		if (err || !user) return res.json(util.successFalse(err));
+	User.findOne({userId:req.decoded.userId}).select({password:1}).exec((err, user) => {
+		if (err) return res.status(500).json(util.successFalse(err));
 
 		// update user object
-		user.originalPassword = user.password;
+		user.originalPassword = user.password;            //해시값
 		user.password = req.body.newPassword ? req.body.newPassword : user.password;
-		user.updated_at = Date.now;
-		/*
+    
 		for (var p in req.body) {
 			user[p] = req.body[p];
 		}
-		*/
+    
+    user.updated_at = Date.now();  
+    
 		// save updated user
 		user.save((err, user) => {
-			if (err || !user) return res.json(util.successFalse(err));
+			if (err || !user) return res.status(500).json(util.successFalse(err));
 			user.password = undefined;
 			res.json(util.successTrue(user));
 		});
 	});
 });
+
 
 // 회원탈퇴
 router.delete('/me', util.isLoggedin, checkPermission, (req, res, next) => {
@@ -125,11 +132,17 @@ router.put('/mycafes:cafeId', util.isLoggedin, (req, res) => {
       if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
       
       user.myCafeIds.push(cafeId);
+      user.save()
+          .then(user => res.status(200).json(util.successTrue(user.myCafeIds)))
+          .catch(err => res.status(500).json(util.successFalse(err)));
+      /*
       user.save((err, user) => {
         if (err) return res.status(500).json(util.successFalse(err));
-        res.status(200).json({util.successTrue(user.myCafeIds)});
       });
+      */
     });
+    
+//     res.status(200).json(util.successTrue(user.myCafeIds));
   });
 });
 
@@ -159,13 +172,21 @@ router.put('/mymenu:menuId', util.isLoggedin, (req, res) => {
       if (!item) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
       
       user.myItemIds.push(item.itemId);
+      
+      user.myCafeIds.push(cafeId);
+      user.save()
+          .then(user => res.status(200).json(util.successTrue(user.myCafeIds)))
+          .catch(err => res.status(500).json(util.successFalse(err)));
+      /*
       user.save((err, user) => {
         if (err) return res.status(500).json(util.successFalse(err));
         res.status(200).json({util.successTrue(user.myItemIds)});
       });
+      */
     });
   });
 });
+
 
 // private functions
 function checkPermission(req, res, next) {

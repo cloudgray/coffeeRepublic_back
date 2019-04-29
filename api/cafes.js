@@ -9,28 +9,39 @@ const util = require('../util');
 // 카페 등록 - 스테프로 로그인해야 한다
 router.post('/', util.isLoggedin, util.isStaff, (req, res) => {
 	console.log('POST api/cafe/register called');
-		
-	var newCafe = new Cafe(req.body);
-  if (newCafe.geometry.coordinates[0] > 90) newCafe.geometry.coordinates[0] -= 90;
-  if (newCafe.geometry.coordinates[1] > 90) newCafe.geometry.coordinates[1] -= 90;
-  newCafe.cafeId = randomstring.generate(16);
   
-  User.findById(req.decoded.userId, (err, user) => {
-    user.myOwnCafeId = newCafe.cafeId;
-    newCafe.ownerId = user.userId;
-    user.save((err, user) => {
+  User.findOne({userId:req.decoded.userId}, (err, user) => {
+    // 일단 사장님 한 명이 카페 하나만 소유하도록 한다.
+    // 매장을 두 개 이상 운영하는 경우는 추후에 수정...
+    if (user.cafeId) return res.status(400).json(util.successFalse(null, '이미 등록된 카페가 있습니다.'));
+    
+    // 같은 매장의 중복 등록을 방지한다.
+    Cafe.findOne({name:req.body.name, address:req.body.address, tel:req.body.tel}, (err, cafe) => {
+      
       if (err) return res.status(500).json(util.successFalse(err));
-		  if (!user) return res.status(404).json(util.successFalse(null, '존재하지 않는 사업자입니다.'));
+      if (cafe) return res.status(400).json*util.successFalse(null, '이미 등록된 카페입니다.');
+      
+      if (req.body.latitude > 90) req.body.latitude -= 90;
+      if (req.body.longitude > 90) req.body.longitude -= 90;
+
+      var newCafe = new Cafe(req.body);
+      newCafe.geometry.coordinates = [req.body.latitude,req.body.latitude];
+      newCafe.cafeId = randomstring.generate(16);
+
+      user.myOwnCafeId = newCafe.cafeId;
+      newCafe.ownerId = user.userId;
+
+      user.save()
+          .catch(err => res.status(500).json(util.successFalse(err)));
+      
+      // save()로 저장
+      newCafe.save((err, cafe) => {
+        if (err) return res.status(500).json(util.successFalse(err));
+        if (!cafe) return res.status(404).json(util.successFalse(null, '커피숍 등록 실패')); 
+        res.status(200).json(util.successTrue(cafe));
+      });
     });
-  });
-  
-	// save()로 저장
-	newCafe.save((err, cafe) => {
-		if (err) return res.status(500).json(util.successFalse(err));
-		if (!cafe) return res.status(404).json(util.successFalse(null, '커피숍 등록 실패')); 
-    res.status(200).json(util.successTrue(cafe));
-	});
-  
+  });  
 });
 
 // 카페 리스트 가져오기

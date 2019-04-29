@@ -28,7 +28,7 @@ router.post('/login', (req,res,next) => {
   },
   (req,res,next) => {
     User.findOne({email:req.body.email})
-    .select({userId, nickname:1, password:1})
+    .select({userId:1, nickname:1, password:1})
     .exec((err,user) => {
       if(err) return res.json(util.successFalse(err));
       else if(!user||!user.authenticate(req.body.password))
@@ -98,7 +98,7 @@ router.post('/stafflogin', (req,res,next) => {
 
 // refresh
 router.get('/refresh', util.isLoggedin, (req,res,next) => {
-    User.findById(req.decoded._id)
+    User.findOne({userId:req.decoded.userId})
     .exec((err,user) => {
       if(err||!user) return res.json(util.successFalse(err));
       else {

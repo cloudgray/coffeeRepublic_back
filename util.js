@@ -56,9 +56,9 @@ util.isLoggedin = function(req,res,next){
 // private functions
 util.isStaff = function(req, res, next) {
 	User.findOne({
-		_id: req.decoded._id
+		userId: req.decoded.userId
 	}, (err, user) => {
-		if (err || !user) return res.json(util.successFalse(err));
+		if (err || !user) return res.status(500).json(util.successFalse(err));
 		else if (!req.decoded || !user.isStaff)
 			return res.json(util.successFalse(null, 'You don\'t have permission'));
 		else next();
@@ -68,9 +68,9 @@ util.isStaff = function(req, res, next) {
 // private functions
 util.isOwner = function(req, res, next) {
 	User.findOne({
-		_id: req.decoded._id
+		userId: req.decoded.userId
 	}, (err, user) => {
-		if (err || !user) return res.json(util.successFalse(err));
+		if (err || !user) return res.status(500).json(util.successFalse(err));
 		else if (!req.decoded || !user.isOwner)
 			return res.json(util.successFalse(null, 'You don\'t have permission'));
 		else next();
