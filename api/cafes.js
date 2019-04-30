@@ -2,6 +2,7 @@
 var router = require('express').Router();
 const randomstring = require('randomstring');
 const Cafe = require('../models/model_cafe');
+const Item = require('../models/model_item');
 const User = require('../models/model_user');
 const util = require('../util');
 
@@ -19,13 +20,11 @@ router.post('/', util.isLoggedin, util.isStaff, (req, res) => {
     Cafe.findOne({name:req.body.name, address:req.body.address, tel:req.body.tel}, (err, cafe) => {
       
       if (err) return res.status(500).json(util.successFalse(err));
-      if (cafe) return res.status(400).json*util.successFalse(null, '이미 등록된 카페입니다.');
-      
-      if (req.body.latitude > 90) req.body.latitude -= 90;
-      if (req.body.longitude > 90) req.body.longitude -= 90;
+      if (cafe) return res.status(400).json(util.successFalse(null, '이미 등록된 카페입니다.'));
+
 
       var newCafe = new Cafe(req.body);
-      newCafe.geometry.coordinates = [req.body.latitude,req.body.latitude];
+      newCafe.geometry.coordinates = [req.body.longitude, req.body.latitude];
       newCafe.cafeId = randomstring.generate(16);
 
       user.myOwnCafeId = newCafe.cafeId;
@@ -52,18 +51,7 @@ router.get('/', (req, res) => {
     if (err) return res.status(500).json(util.successFalse(err));
     if (!cafes) return res.status(404).json(util.successFalse(null, '등록된 카페가 없습니다.'));
     res.status(200).json(util.successTrue(cafes));
-  });
-	
-  /*
-  for (var i = 0; i < results.length; i++) {
-    var curName = results[i]._doc.name;
-    var curAddress = results[i]._doc.address;
-    var curTel = results[i]._doc.tel;
-    var curLongitude = results[i]._doc.geometry.coordinates[0];
-    var curLatitude = results[i]._doc.geometry.coordinates[1];
-  }	
-  */
-  
+  });  
 });
 
 // 가까운 커피숍 10개 조회
@@ -71,8 +59,8 @@ router.get('/near', (req, res) => {
 	console.log('cafe 모듈 안에 있는 findNear 호출됨.');
   
 	var maxDistance = 3000;
-  var longitude = req.query.longitude;
-  var latitude = req.query.latitude;
+  var longitude = req.body.longitude;
+  var latitude = req.body.latitude;
 	
   console.log('요청 파라미터 : ' + longitude + ', ' + latitude);
 		// 가까운 커피숍 10개 검색
@@ -87,9 +75,10 @@ router.get('/near', (req, res) => {
 // 카페 상세정보 가져오기
 router.get('/:cafeId', (req, res) => {
   console.log('GET /:cafeId called');
-  Cafe.findById(req.params.cafeId, (err, cafe) => {
-    if (err) return res.status(400).json(util.successFalse(err, '잘못된 요청입니다.')); 
+  Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
+    if (err) return res.status(500).json(util.successFalse(err, '잘못된 요청입니다.')); 
     if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
+    
     res.status(200).json(util.successTrue(cafe));
   });
 });
@@ -98,14 +87,16 @@ router.get('/:cafeId', (req, res) => {
 // 카페 정보 수정
 router.put('/:cafeId', util.isLoggedin, util.isStaff, (req, res) => {
   console.log('PUT /:cafeId called');
-  Cafe.findById(req.params.cafeId, (err, cafe) => {
+  Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
     if (err) return res.status(400).json(util.successFalse(err, '잘못된 요청입니다.')); 
     if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
     
     for (var p in req.body) {
 			cafe[p] = req.body[p];
 		}
-    cafe.updated_at = Date.now;
+    cafe.geometry.coordinates = [req.body.longitude,req.body.latitude];
+    cafe.updated_at = Date.now();
+    
     cafe.save((err, cafe) => {
       if (err) return res.status(400).json(util.successFalse(err, '카페 정보 수정 실패'));
       res.status(200).json(util.successTrue(cafe));
@@ -115,9 +106,9 @@ router.put('/:cafeId', util.isLoggedin, util.isStaff, (req, res) => {
 
 
 // 카페 탈퇴
-router.put('/:cafeId/unregister', util.isLoggedin, util.isOwner, (req, res) => {
-  console.log('PUT /:cafeId/unregister called');
-  Cafe.findById(req.params.cafeId, (err, cafe) => {
+router.delete('/:cafeId/unregister', util.isLoggedin, util.isOwner, (req, res) => {
+  console.log('DELETE /:cafeId/unregister called');
+  Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
     if (err) return res.status(400).json(util.successFalse(err, '잘못된 요청입니다.')); 
     if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
     
@@ -128,6 +119,87 @@ router.put('/:cafeId/unregister', util.isLoggedin, util.isOwner, (req, res) => {
       res.status(200).json(util.successTrue(cafe));
     }); 
   });
+});
+
+
+
+
+// 메뉴 목록 가져오기
+router.get('/:cafeId/items', (req, res) => {
+  Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
+    if (err) return res.status(500).json(util.successFalse(err)); 
+    if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
+    
+    Item.find({itemId:{$in: cafe.itemIds}}, (err, items) => {
+      if (err||!items) return res.status(500).json(util.successFalse(err)); 
+      
+      res.status(200).json(util.successTrue(items));
+    });
+  });
+});
+
+// 메뉴 등록
+router.post('/:cafeId/items', util.isLoggedin, util.isStaff, (req, res) => {
+  Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
+    if (err) return res.status(500).json(util.successFalse(err)); 
+    if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
+    
+    Item.findOne({itemId:req.body.itemId}, (err, item) => {
+      if (err) return res.status(500).json(util.successFalse(err));
+      if (item) return res.status(404).json(util.successFalse(null, '이미 등록된 메뉴입니다.'));
+
+      var newItem = new Item(req.body);
+      newItem.itemId = randomstring.generate(16);
+      
+      cafe.itemIds.push(newItem.itemId);
+      cafe.save()
+        .catch(err => console.log(err));
+      
+      newItem.save()
+        .then(item => res.status(200).json(util.successTrue(item)))
+        .catch(err => res.status(500).json(util.successFalse(err)));
+    });
+  }); 
+});
+
+// 메뉴 수정
+router.put('/:cafeId/items/:itemId', util.isLoggedin, util.isStaff, (req, res) => {
+  Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
+    if (err) return res.status(500).json(util.successFalse(err)); 
+    if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
+    
+    Item.findOne({itemId:req.params.itemId}, (err, item) => {
+      if (err) return res.status(500).json(util.successFalse(err));
+      if (!item) return res.status(404).json(util.successFalse(null, '등록된 메뉴가 아닙니다.'));
+
+      for (var p in req.body) {
+        item[p] = req.body[p];
+      }
+      
+      item.save()
+        .then(item => res.status(200).json(util.successTrue(item)))
+        .catch(err => res.status(500).json(util.successFalse(err)));
+    });
+  });
+});
+
+//메뉴 삭제
+router.delete('/:cafeId/items/:itemId', util.isLoggedin, util.isStaff, (req, res) => {
+  Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
+    if (err) return res.status(500).json(util.successFalse(err)); 
+    if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
+    
+    Item.findOneAndDelete({itemId:req.params.itemId}, (err, item) => {
+      if (err) return res.status(400).json(util.successFalse(err));
+      if (!item) return res.status(404).json(util.successFalse(null, '존재하지 않는 메뉴입니다.'));
+      
+      cafe.itemIds.splice(cafe.itemIds.indexOf(req.params.itemId), 1);
+      cafe.save()
+        .catch(err => console.log(err));
+      
+      res.status(200).json(util.successTrue(null));
+    });   
+  });   
 });
 
 

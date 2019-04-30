@@ -15,7 +15,7 @@ var CafeSchema = new Schema({
 	},
   itemIds: [{type:String}],
   maxOrderNum:{type:Number},
-  pendingOrders:[{orderId:String}],
+  pendingOrderIds:[{type:String}],
   deprecated: {type: Boolean, default: false},
 	created_at: {type: Date, index: {unique: false}, 'default': Date.now},
 	updated_at: {type: Date, index: {unique: false}, 'default': Date.now}
@@ -34,7 +34,7 @@ CafeSchema.static('findAll', function(callback) {
 CafeSchema.static('findNear', function(longitude, latitude, maxDistance, num, callback) {
 	console.log('CafeSchema의 findNear 호출됨.');
 
-	this.find({"deprecated":false}).where('geometry').near({center:{type:'Point', coordinates:[parseFloat(longitude), parseFloat(latitude)]}, maxDistance:maxDistance}).limit(num).exec(callback);
+	this.find({deprecated:false}).where('geometry').near({center:{type:'Point', coordinates:[longitude, latitude]}, maxDistance:maxDistance}).limit(num).exec(callback);
 });
 
 // 일정 범위 내의 커피숍 조회
