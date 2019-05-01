@@ -3,10 +3,11 @@ var mongoose = require('mongoose');
 
 // 스키마 정의
 var ItemSchema = mongoose.Schema({
-  itemId: {type:String},
-  cafeId: {type:String},
-	name: {type:String},
-	price: {type:Number},
+  itemId: {type: String},
+  cafeId: {type: String},
+  imageId: {type: mongoose.Schema.ObjectId, ref:'Image'},
+	name: {type: String},
+	price: {type: Number},
   options: {type: Object, default:{}},
 	created_at: {type: Date, index: {unique: false}, 'default': Date.now},
 	updated_at: {type: Date, index: {unique: false}, 'default': Date.now}

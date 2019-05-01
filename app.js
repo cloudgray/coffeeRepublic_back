@@ -1,17 +1,19 @@
 
-var express = require('express');
-var http = require('http');
-var path = require('path');
-var bodyParser = require('body-parser');
-var mongoose = require('mongoose');
-var logger = require('morgan');
-var config = require('./config/config');
+const express = require('express');
+const cors = require('cors');
+const http = require('http');
+const path = require('path');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const logger = require('morgan');
+const config = require('./config/config');
 
 // 라우팅 미들웨어
 const cafes = require('./api/cafes');
 const devices = require('./api/devices');
 const users = require('./api/users');
 const auth = require('./api/auth');
+const images = require('./api/images');
 
 // db 연결
 mongoose.Promise = global.Promise;
@@ -46,6 +48,11 @@ app.use(function (req, res, next) {
   next();
 });
 
+app.use(express.static(path.join(__dirname, 'public')));
+
+// cross-origin resource sharing 미들웨어 사용
+app.use(cors());
+
 // logger 사용
 app.use(logger('dev'));
 
@@ -54,6 +61,7 @@ app.use('/api/cafes', cafes);
 app.use('/api/devices', devices);
 app.use('/api/users', users);
 app.use('/api/auth', auth);
+app.use('/api/images', images);
 
 
 

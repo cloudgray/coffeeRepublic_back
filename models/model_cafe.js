@@ -1,10 +1,8 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-
+const mongoose = require('mongoose');
 
 
 // 스키마 정의
-var CafeSchema = new Schema({
+var CafeSchema = new mongoose.Schema({
   cafeId: {type: String, 'default':''},
 	name: {type: String, index: 'hashed', 'default':''},
 	address: {type: String, 'default':''},
@@ -14,6 +12,8 @@ var CafeSchema = new Schema({
 		coordinates: [{type: "Number"}]
 	},
   itemIds: [{type:String}],
+  profileImageId: {type: mongoose.Schema.ObjectId, ref:'Image'},
+  imageIds: {type: mongoose.Schema.ObjectId, ref:'Image'},
   maxOrderNum:{type:Number},
   pendingOrderIds:[{type:String}],
   deprecated: {type: Boolean, default: false},

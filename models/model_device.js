@@ -1,10 +1,8 @@
-
 var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
 
 
 // 스키마 정의
-var DeviceSchema = new Schema({
+var DeviceSchema = new mongoose.Schema({
   deviceId:{type:String, default:''},
 	mobile: {type: String, index: 'hashed', default:''},
 	osVersion: {type: String, default:''},
