@@ -43,6 +43,8 @@ router.post('/', util.isLoggedin, util.isStaff, (req, res) => {
   });  
 });
 
+
+
 // 카페 리스트 가져오기
 router.get('/', (req, res) => {
 	console.log('GET /api/cafe called');
@@ -69,7 +71,6 @@ router.get('/near', (req, res) => {
     if (!cafes) return res.status(404).json(util.successFalse(null, '주변에 예약 주문이 가능한 카페가 없습니다.ㅠㅠ'));
     res.status(200).json(util.successTrue(cafes));
   });
-  
 });
 
 // 카페 상세정보 가져오기
@@ -144,7 +145,7 @@ router.post('/:cafeId/items', util.isLoggedin, util.isStaff, (req, res) => {
     if (err) return res.status(500).json(util.successFalse(err)); 
     if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
     
-    Item.findOne({itemId:req.body.itemId}, (err, item) => {
+    Item.findOne({name:req.body.name, price:req.body.price}, (err, item) => {
       if (err) return res.status(500).json(util.successFalse(err));
       if (item) return res.status(404).json(util.successFalse(null, '이미 등록된 메뉴입니다.'));
 
@@ -161,6 +162,43 @@ router.post('/:cafeId/items', util.isLoggedin, util.isStaff, (req, res) => {
     });
   }); 
 });
+
+// 메뉴 여러개 한꺼번에 등록
+router.post('/:cafeId/itemlist', util.isLoggedin, util.isStaff, (req, res) => {
+  Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
+    if (err) return res.status(500).json(util.successFalse(err)); 
+    if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
+    
+    var itemlist = req.body.itemlist;
+    var namelist = [];
+    for (var i in req.body.itemlist) {
+      namelist.push(itemlist[i].name);
+    }
+    Item.find({name:{$in: namelist}}, (err, items) => {
+      if (err) return res.status(500).json(util.successFalse(err));
+      if (items.length != 0) return res.status(400).json(util.successFalse(null, '중복되는 메뉴가 있습니다.'));
+      
+      for (var i in itemlist) {
+        var newItem = new Item();
+        newItem.itemId = randomstring.generate(16);
+        newItem.cafeId = req.params.cafeId;
+        newItem.name = itemlist[i].name;
+        newItem.price = itemlist[i].price;
+        newItem.options = itemlist[i].options;
+        
+        cafe.itemIds.push(newItem.itemId);
+
+        newItem.save()
+          .catch(err => res.status(500).json(util.successFalse(err)));
+      }
+
+      cafe.save()
+        .then(cafe => res.status(200).json(util.successTrue(cafe.itemIds)))
+        .catch(err => console.log(err));
+    });
+  }); 
+});
+
 
 // 메뉴 수정
 router.put('/:cafeId/items/:itemId', util.isLoggedin, util.isStaff, (req, res) => {

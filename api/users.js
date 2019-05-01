@@ -23,7 +23,6 @@ router.post('/', (req, res, next) => {
     newUser.userId = randomstring.generate(16);
 		
 		newUser.save((err, user) => {
-      console.dir(user);
 			res.json(err || !user ? util.successFalse(err) : util.successTrue(user));
 		});
 	});
