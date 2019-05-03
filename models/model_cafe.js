@@ -15,7 +15,6 @@ var CafeSchema = new mongoose.Schema({
   profileImageId: {type: mongoose.Schema.ObjectId, ref:'Image'},
   imageIds: {type: mongoose.Schema.ObjectId, ref:'Image'},
   maxOrderNum:{type:Number},
-  pendingOrderIds:[{type:String}],
   deprecated: {type: Boolean, default: false},
 	created_at: {type: Date, index: {unique: false}, 'default': Date.now},
 	updated_at: {type: Date, index: {unique: false}, 'default': Date.now}
