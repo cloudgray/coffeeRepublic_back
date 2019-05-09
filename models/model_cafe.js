@@ -12,7 +12,7 @@ var CafeSchema = new mongoose.Schema({
 		coordinates: [{type: "Number"}]
 	},
   itemIds: [{type:String}],
-	signatureItemIds: [{type:String}],
+	signatureItems: [{type:String}],
   profileImg: {type: String},
   images: [{type: String}],
   maxOrderNum:{type:Number},

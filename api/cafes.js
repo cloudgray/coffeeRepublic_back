@@ -167,6 +167,23 @@ router.post('/:cafeId/items', util.isLoggedin, util.isStaff, (req, res) => {
 });
 
 
+// 대표 메뉴 등록
+router.put('/:cafeId/signature/:itemId', util.isLoggedin, util.isStaff, (req, res) => {
+	Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
+		if (err) return res.status(500).json(util.successFalse(err)); 
+    if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
+		
+		Item.findOne({itemId:req.params.itemId}, (err, item) => {
+			if (err) return res.status(500).json(util.successFalse(err)); 
+    	if (!item) return res.status(404).json(util.successFalse(null, '등록되지 않은 메뉴입니다.'));
+			
+			cafe.signatureItems.push(item.name);
+			cafe.save()
+				.then(cafe => res.status(200).json(util.successTrue(cafe.signatureItems)))
+				.catch(err => res.status(500).json(util.successFalse(err)));				
+		});
+	});
+});
 
 
 // 메뉴 수정
