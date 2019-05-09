@@ -41,7 +41,10 @@ router.post('/login', (req,res,next) => {
         var options = {expiresIn: 60*60*24};
         jwt.sign(payload, config.secret, options, (err, token) => {
           if(err) return res.json(util.successFalse(err));
-          res.json(util.successTrue(token));
+					const data = {email: user.email, 
+												nickname: user.nickname, 
+												token: token}
+          res.json(util.successTrue(data));
         });
       }
     });

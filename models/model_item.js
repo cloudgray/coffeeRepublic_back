@@ -5,22 +5,13 @@ var mongoose = require('mongoose');
 var ItemSchema = mongoose.Schema({
   itemId: {type: String},
   cafeId: {type: String},
-  imageId: {type: mongoose.Schema.ObjectId, ref:'Image'},
+  imagePath: {type: String},
 	name: {type: String},
 	price: {type: Number},
   options: {type: Object, default:{}},
 	created_at: {type: Date, index: {unique: false}, 'default': Date.now},
 	updated_at: {type: Date, index: {unique: false}, 'default': Date.now}
 });
-
-
-//
-// 필요한 메소드 정의
-//
-
-
-// 모델을 위한 스키마 등록
-mongoose.model('Item', ItemSchema);
 
 
 

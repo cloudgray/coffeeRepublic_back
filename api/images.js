@@ -24,37 +24,21 @@ const upload = multer({
 });
 
 
-// 카페 대표 이미지 가져오기
-router.get('/cafeprofile/:cafeId', (req, res) => {
-  Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
-    if (err) return res.status(500).json(util.successFalse(err))
-    if (!cafe) return res.status(404).json(util.successFalse(null, '존재하지 않는 카페입니다.'))
-    
-    Image.findById(cafe.profileImageId, (err, image) => {
-      if (err) return res.status(500).json(util.successFalse(err))
-      res.status(200).json(image);
-    })
-  })
-})
-
 
 // 카페 대표 이미지 등록/수정
-router.post('/cafeprofile/:cafeId', upload.single('data'), (req, res) => {
+router.post('/:cafeId/profileimg', upload.single('data'), (req, res) => {
   Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
     if (err) return res.status(500).json(util.successFalse(err))
     if (!cafe) return res.status(404).json(util.successFalse(null, '존재하지 않는 카페입니다.'))
     
-    if (cafe.profileImageId) {
-      Image.deleteOne({ _id: req.params.id }, function(err, image) {
-        if (err) res.send(err)
-        res.json({ message: `Image (${req.params.id}) was successfully deleted.`})
+    if (cafe.profileImg) {
+      Image.deleteOne({ path: cafe.profileImg }, function(err, image) {
+        if (err) return res.send(err)
       })
     }
     
     const path = require('path')
     const remove = path.join(__dirname, '..', 'public')
-    console.log(remove)
-    console.log(req.file)
     const relPath = req.file.path.replace(remove, '')
     const newImage = new Image(req.body)
     newImage.path = relPath
@@ -62,26 +46,27 @@ router.post('/cafeprofile/:cafeId', upload.single('data'), (req, res) => {
     
     newImage.save((err, image) => {
       if (err) return res.status(500).json(util.successFalse(err))
-      cafe.profileImageId = image._id
+      cafe.profileImg = image.path
       cafe.save()
-      res.status(200).json(image)
+				.then(image => res.status(500).json(util.successTrue(cafe.profileImg)))
+				.catch(err => res.status(500).json(util.successFalse(err)));
     })
   })
 })
 
 
 // 카페 대표 이미지 삭제
-router.delete('/cafeprofile/:cafeId', (req, res) => {
+router.delete('/:cafeId/profileimg', (req, res) => {
   Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
-    if (err) return res.status(500).json(util.successFalse(err))
-    if (!cafe) return res.status(404).json(util.successFalse(null, '존재하지 않는 카페입니다.'))
+    if (err) return res.status(500).json(util.successFalse(err));
+    if (!cafe) return res.status(404).json(util.successFalse(null, '존재하지 않는 카페입니다.'));
     
     Image.deleteOne({ _id: req.params.id }, function(err, image) {
-      if (err) res.send(err)
-      res.json({ message: `Image (${req.params.id}) was successfully deleted.`})
+      if (err) return res.send(err);
+      res.json(util.status(200).json(util.successTrue()));
     })
   })          
-})
+});
 
 
 

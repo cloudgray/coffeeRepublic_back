@@ -3,13 +3,13 @@
 const mongoose = require('mongoose')
 
 const ImageSchema = new mongoose.Schema({
-  path: { // 원래 있던거
+  path: { 
     type: String,
     required: true
   },
-  label: {  // 원래 있던거
+  label: { 
     type: String,
-    required: true
+    default: ''
   },
   created_at: {
     type: Date,

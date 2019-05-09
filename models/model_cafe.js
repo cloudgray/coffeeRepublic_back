@@ -12,8 +12,9 @@ var CafeSchema = new mongoose.Schema({
 		coordinates: [{type: "Number"}]
 	},
   itemIds: [{type:String}],
-  profileImageId: {type: mongoose.Schema.ObjectId, ref:'Image'},
-  imageIds: {type: mongoose.Schema.ObjectId, ref:'Image'},
+	signatureItemIds: [{type:String}],
+  profileImg: {type: String},
+  images: [{type: String}],
   maxOrderNum:{type:Number},
   deprecated: {type: Boolean, default: false},
 	created_at: {type: Date, index: {unique: false}, 'default': Date.now},
