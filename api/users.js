@@ -240,29 +240,30 @@ function checkPermission(req, res, next) {
 // 여러명 회원가입
 router.post('/atonce', (req, res, next) => {
 	console.log('POST /api/users/atonce 호출됨');
-	const userlist = [];
-	for (var i in res.body.userlist) {
-		userlist.push(res.body.userlist[i]);
+	const userlist = req.body.userlist;
+	var emaillist = [];
+	for (var i in req.body.userlist) {
+		emaillist.push(userlist[i].email);
 	}
-	User.find({email:{$in: userlist}}, (err, users)) {
+	User.find({email:{$in: emaillist}}, (err, users) => {
 		if (err) return res.status(500).json(util.successFalse(err));
-		if (users) return res.status(400).json(util.successFalse(null, 'user already exists'));
-	}
-	
-	for (var i in userlist){
-		if (!userlist[i].email || !userlist[i].nickname || !userlist[i].password) 
-			return res.status(400).json(util.successFalse(null, 'email/nickname/password required'));
-
-		var newUser = new User();
-		for (var p in userlist[i]) {
-			newUser[p] = userlist[i][p];
-		}
+		if (users.length != 0) return res.status(400).json(util.successFalse(null, 'user already exists'));
 		
-		newUser.userId = randomstring.generate(16);
-		newUser.save()
-			.catch(err => res.status(500).json({util.successFalse(err)}));
-	}
-	res.status(200).json(util.successTrue());
+		for (var i in userlist){
+			if (!userlist[i].email || !userlist[i].nickname || !userlist[i].password) 
+				return res.status(400).json(util.successFalse(null, 'email/nickname/password required'));
+
+			var newUser = new User();
+			for (var p in userlist[i]) {
+				newUser[p] = userlist[i][p];
+			}
+
+			newUser.userId = randomstring.generate(16);
+			newUser.save()
+				.catch(err => res.status(500).json(util.successFalse(err)));
+		}
+		res.status(200).json(util.successTrue());
+	});
 });
 
 

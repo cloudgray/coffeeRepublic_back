@@ -1,6 +1,8 @@
 
 var router = require('express').Router();
-const Queue = require('better-queue');
+const fs = require('fs');
+const path = require('path');
+const multer  = require('multer');
 const randomstring = require('randomstring');
 const Cafe = require('../models/model_cafe');
 const Item = require('../models/model_item');
@@ -209,8 +211,24 @@ router.delete('/:cafeId/items/:itemId', util.isLoggedin, util.isStaff, (req, res
 
 
 
+/*
+* 이미지 업로드 관련
+*/
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: function(req, file, cb) {
+      const uploadsDir = path.join(__dirname, '..', 'public', 'uploads', `${Date.now()}`)
+      fs.mkdirSync(uploadsDir)
+      cb(null, uploadsDir)
+    },
+    filename: function(req, file, cb) {
+      cb(null, file.originalname)
+    }
+  }),
+});
+
 // 카페 대표 이미지 등록/수정
-router.post('/:cafeId/profileimg',util.isStaff, upload.single('data'), (req, res) => {
+router.post('/:cafeId/profileimg', util.isLoggedin, util.isStaff, upload.single('data'), (req, res) => {
   Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
     if (err) return res.status(500).json(util.successFalse(err));
     if (!cafe) return res.status(404).json(util.successFalse(null, '존재하지 않는 카페입니다.'));
@@ -240,7 +258,7 @@ router.post('/:cafeId/profileimg',util.isStaff, upload.single('data'), (req, res
 
 
 // 카페 대표 이미지 삭제
-router.delete('/:cafeId/profileimg', util.isStaff, (req, res) => {
+router.delete('/:cafeId/profileimg', util.isLoggedin, util.isStaff, (req, res) => {
   Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
     if (err) return res.status(500).json(util.successFalse(err));
     if (!cafe) return res.status(404).json(util.successFalse(null, '존재하지 않는 카페입니다.'));
@@ -265,16 +283,15 @@ router.delete('/:cafeId/profileimg', util.isStaff, (req, res) => {
 router.post('/atonce', (req, res) => {
 	console.log('POST api/cafes/atonce called');
 	
-	const cafelist = [];
-	const cafeIds = [];
-	for (var i in req.body.cafelist) {
-		cafelist.push(rea.body.cafelist[i]);
+	const cafelist = req.body.cafelist;
+	var cafeIds = [];
+	for (var i in cafelist) {
 		cafeIds.push(randomstring.generate(16));
 	}
   
-	Cafe.find({cafeId:{$in: cafelist}}, (err, cafes) => {
+	Cafe.find({cafeId: {$in: cafeIds}}, (err, cafes) => {
 		if (err) return res.status(500).json(util.successFalse(err));
-    if (cafes) return res.status(400).json(util.successFalse(null, '이미 등록된 카페가 있습니다.'));
+    if (cafes.length != 0) return res.status(400).json(util.successFalse(null, '이미 등록된 카페가 있습니다.'));
 	
 		User.find({isOwner:true}, (err, users) => {
 			if (err) return res.status(500).json(util.successFalse(err));
@@ -283,17 +300,17 @@ router.post('/atonce', (req, res) => {
 			for (var i in cafeIds) {
 				users[i].myOwnCafeId = cafeIds[i];
 				users[i].save()
-					.catch(res.status(500).json(util.successFalse(err)));
+					.catch(err => res.status(500).json(util.successFalse(err)));
 			}
 			
 			for (var i in cafelist) {
 				var newCafe = new Cafe();
-				for (var p in cafelist) {
+				for (var p in cafelist[i]) {
+					console.log(cafelist[i][p]);
 					newCafe[p] = cafelist[i][p];
 				}
-				newCafe.geometry.coordinates = [req.body.longitude, req.body.latitude];
+				newCafe.geometry.coordinates = [cafelist[i].longitude, cafelist[i].latitude];
 				newCafe.cafeId = cafeIds[i];
-				newCafe.ownerId = users[i].userId;
 				newCafe.save()
 					.catch(err => res.status(500).json(util.successFalse(err)));
 			}

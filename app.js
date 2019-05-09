@@ -10,7 +10,6 @@ const config = require('./config/config');
 
 // 라우팅 미들웨어
 const cafes = require('./api/cafes');
-const devices = require('./api/devices');
 const users = require('./api/users');
 const auth = require('./api/auth');
 const images = require('./api/images');
@@ -58,7 +57,6 @@ app.use(logger('dev'));
 
 // API
 app.use('/api/cafes', cafes);
-app.use('/api/devices', devices);
 app.use('/api/users', users);
 app.use('/api/auth', auth);
 app.use('/api/images', images);
