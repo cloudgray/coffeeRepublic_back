@@ -440,8 +440,10 @@ router.post('/:cafeId/itemlist', util.isLoggedin, util.isStaff, (req, res) => {
 router.get('/test/test', (req, res) => {
 	console.log(__dirname);
 	const filepath = path.join(__dirname, '..', 'test');
-	fs.mkdir(filepath);
-	res.status(200).json(util.successTrue('good'));
+	fs.mkdir(filepath, (err) => {
+		res.status(200).json(util.successTrue('good'));
+	});
+	
 });
 
 
