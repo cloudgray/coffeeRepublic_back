@@ -439,6 +439,8 @@ router.post('/:cafeId/itemlist', util.isLoggedin, util.isStaff, (req, res) => {
 
 router.get('/test/test', (req, res) => {
 	console.log(__dirname);
+	const filepath = path.join(__dirname, '..', 'test');
+	fs.mkdir(filepath);
 });
 
 
