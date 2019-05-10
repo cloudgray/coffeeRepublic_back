@@ -7,6 +7,7 @@ const randomstring = require('randomstring');
 const Cafe = require('../models/model_cafe');
 const Item = require('../models/model_item');
 const User = require('../models/model_user');
+const Image = require('../models/model_image');
 const util = require('../util');
 
 
@@ -29,7 +30,10 @@ router.post('/', util.isLoggedin, util.isStaff, (req, res) => {
       var newCafe = new Cafe(req.body);
       newCafe.geometry.coordinates = [req.body.longitude, req.body.latitude];
       newCafe.cafeId = randomstring.generate(16);
-
+			
+			const uploadDir = path.join(__dirname, '..', 'public', 'uploads', `${newCafe.cafeId}`);
+			fs.mkdir(uploadDir);
+			
       user.myOwnCafeId = newCafe.cafeId;
       newCafe.ownerId = user.userId;
 
@@ -231,18 +235,54 @@ router.delete('/:cafeId/items/:itemId', util.isLoggedin, util.isStaff, (req, res
 /*
 * 이미지 업로드 관련
 */
+
 const upload = multer({
   storage: multer.diskStorage({
-    destination: function(req, file, cb) {
-      const uploadsDir = path.join(__dirname, '..', 'public', 'uploads', `${Date.now()}`)
-      fs.mkdirSync(uploadsDir)
-      cb(null, uploadsDir)
+    destination: (req, file, cb) => {
+			Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
+				const uploadsDir = path.join(__dirname, '..', 'public', 'uploads', `${cafe.cafeId}`);
+				
+				// 메뉴 이미지를 업로드 하는 경우
+				if (req.params.itemId) {
+					Item.findOne({itemId: req.params.itemId}, (err, item) => {
+						// 이미지를 수정하거나 같은 이름의 이미지 파일을 올리는지 체크
+						console.log(item);
+						if (item.image != '') {
+							const filePath = path.join(uploadsDir, `${item.image}`);
+							// 이미 이미지가 존재하거나 같은 이름이라면 기존 이미지 삭제
+							fs.unlink(filePath, (err) => {
+								if (err) console.log(err);
+								Image.deleteOne({path: item.image}, (err, image) => {
+									if (err) console.log(err);
+								});
+							});
+						}
+					});
+				}
+				
+				// 카페 프로필 이미지를 수정하는 경우
+				// 이미지를 수정하거나 이름이 같은 이미지를 업로드할 때 새 것으로 교체
+				else if (cafe.profileImg != '') {
+					// 같은 이름이라면 기존 파일 삭제
+					const filePath = path.join(uploadsDir, cafe.profileImg);
+					fs.unlink(filePath, (err) => {
+						if (err) console.log(err);
+						Image.deleteOne({ path: cafe.profileImg }, function(err, image) {
+							if (err) console.log(err);
+						});
+					});
+				}
+				// public/uploads 폴더에 이미지 저장
+				cb(null, uploadsDir);
+			});
     },
-    filename: function(req, file, cb) {
-      cb(null, file.originalname)
+    filename: (req, file, cb) => {
+      cb(null, file.originalname);
     }
   }),
 });
+
+
 
 // 카페 대표 이미지 등록/수정
 router.post('/:cafeId/profileimg', util.isLoggedin, util.isStaff, upload.single('data'), (req, res) => {
@@ -250,28 +290,20 @@ router.post('/:cafeId/profileimg', util.isLoggedin, util.isStaff, upload.single(
     if (err) return res.status(500).json(util.successFalse(err));
     if (!cafe) return res.status(404).json(util.successFalse(null, '존재하지 않는 카페입니다.'));
     
-    if (cafe.profileImg) {
-      Image.deleteOne({ path: cafe.profileImg }, function(err, image) {
-        if (err) return res.send(err);
-      })
-    }
-    
-    const path = require('path');
     const remove = path.join(__dirname, '..', 'public');
     const relPath = req.file.path.replace(remove, '');
     const newImage = new Image(req.body);
     newImage.path = relPath;
     
-    
     newImage.save((err, image) => {
       if (err) return res.status(500).json(util.successFalse(err));
       cafe.profileImg = image.path;
       cafe.save()
-				.then(image => res.status(500).json(util.successTrue(cafe.profileImg)))
+				.then(image => res.status(200).json(util.successTrue(cafe.profileImg)))
 				.catch(err => res.status(500).json(util.successFalse(err)));
-    })
-  })
-})
+    });
+  });
+});
 
 
 // 카페 대표 이미지 삭제
@@ -279,15 +311,43 @@ router.delete('/:cafeId/profileimg', util.isLoggedin, util.isStaff, (req, res) =
   Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
     if (err) return res.status(500).json(util.successFalse(err));
     if (!cafe) return res.status(404).json(util.successFalse(null, '존재하지 않는 카페입니다.'));
-    
-    Image.deleteOne({ _id: req.params.id }, function(err, image) {
-      if (err) return res.send(err);
-      res.json(util.status(200).json(util.successTrue()));
-    })
-  })          
+		
+    Image.deleteOne({ path: cafe.profileImg }, (err, image) => {
+			if (err) return res.status(500).json(util.successFalse(err));
+			const filepath = path.join(__dirname, '..', 'public', cafe.profileImg);
+			fs.unlink(filepath, (err) => {
+				if (err) return res.status(500).json(util.successFalse(err));
+				cafe.profileImg = '';
+				cafe.save()
+					.then(cafe => res.status(200).json(util.successTrue()))
+					.catch(err => res.status(500).json(util.successFalse(err)));
+			});
+    });
+  });       
 });
 
+// 메뉴 이미지 등록/수정
+router.post('/:cafeId/:itemId/img', util.isLoggedin, util.isStaff, upload.single('data'), (req, res) => {
+  Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
+    if (err) return res.status(500).json(util.successFalse(err));
+    if (!cafe) return res.status(404).json(util.successFalse(null, '존재하지 않는 카페입니다.'));
+    
+		Item.findOne({itemId:req.params.itemId}, (err, item) => {
+			const remove = path.join(__dirname, '..', 'public');
+			const relPath = req.file.path.replace(remove, '');
+			const newImage = new Image(req.body);
+			newImage.path = relPath;
 
+			newImage.save((err, image) => {
+				if (err) return res.status(500).json(util.successFalse(err));
+				item.image = image.path;
+				item.save()
+					.then(item => res.status(200).json(util.successTrue(item.image)))
+					.catch(err => res.status(500).json(util.successFalse(err)));
+			});
+		});
+  });
+});
 
 
 
@@ -327,9 +387,12 @@ router.post('/atonce', (req, res) => {
 					newCafe[p] = cafelist[i][p];
 				}
 				newCafe.geometry.coordinates = [cafelist[i].longitude, cafelist[i].latitude];
-				newCafe.cafeId = cafeIds[i];
+				newCafe.cafeId = cafeIds[i];		
 				newCafe.save()
 					.catch(err => res.status(500).json(util.successFalse(err)));
+				
+				const uploadDir = path.join(__dirname, '..', 'public', 'uploads', `${newCafe.cafeId}`);
+				fs.mkdir(uploadDir);
 			}
 		});	
 	});

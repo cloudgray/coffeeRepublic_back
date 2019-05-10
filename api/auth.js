@@ -109,7 +109,7 @@ router.get('/refresh', util.isLoggedin, (req,res,next) => {
           userId : user.userId,
           nickname: user.nickname
         };
-        var options = {expiresIn: 60*60*24};
+        var options = {expiresIn: 60*60*24*30};		// 토큰 만료기간: 한 달
         jwt.sign(payload, config.secret, options, (err, token) => {
           if(err) return res.json(util.successFalse(err));
           res.json(util.successTrue(token));

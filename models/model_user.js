@@ -12,6 +12,7 @@ var userSchema = mongoose.Schema({
     },
     nickname: {type: String, trim: true, unique: true},
     password: {type: String, select:false},
+		profileImg: {type: String},																	// 이미지 path	
     isStaff: {type:Boolean, default:false},                     // 알바이거나 사장일 경우
     isOwner: {type:Boolean, default:false},                     // 사장일 경우 isStaff와 isOwner가 둘 다 true
     isWorking: {type:Boolean,default:false},                    // 근무중일 경우 - 추가

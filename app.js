@@ -12,7 +12,7 @@ const config = require('./config/config');
 const cafes = require('./api/cafes');
 const users = require('./api/users');
 const auth = require('./api/auth');
-const images = require('./api/images');
+
 
 // db 연결
 mongoose.Promise = global.Promise;
@@ -59,7 +59,6 @@ app.use(logger('dev'));
 app.use('/api/cafes', cafes);
 app.use('/api/users', users);
 app.use('/api/auth', auth);
-app.use('/api/images', images);
 
 
 

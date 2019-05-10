@@ -5,7 +5,7 @@ var mongoose = require('mongoose');
 var ItemSchema = mongoose.Schema({
   itemId: {type: String},
   cafeId: {type: String},
-  imagePath: {type: String},
+  image: {type: String, default:''},
 	name: {type: String},
 	price: {type: Number},
   options: {type: Object, default:{}},
