@@ -437,6 +437,9 @@ router.post('/:cafeId/itemlist', util.isLoggedin, util.isStaff, (req, res) => {
 
 
 
+router.get('/test', (req, res) => {
+	console.log(__dirname);
+});
 
 
 
