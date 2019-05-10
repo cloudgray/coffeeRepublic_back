@@ -32,7 +32,9 @@ router.post('/', util.isLoggedin, util.isStaff, (req, res) => {
       newCafe.cafeId = randomstring.generate(16);
 			
 			const uploadDir = path.join(__dirname, '..', 'public', 'uploads', `${newCafe.cafeId}`);
-			fs.mkdir(uploadDir);
+			fs.mkdir(uploadDir, (err) => {
+				if (err) throw err;
+			});
 			
       user.myOwnCafeId = newCafe.cafeId;
       newCafe.ownerId = user.userId;
@@ -392,7 +394,9 @@ router.post('/atonce', (req, res) => {
 					.catch(err => res.status(500).json(util.successFalse(err)));
 				
 				const uploadDir = path.join(__dirname, '..', 'public', 'uploads', `${newCafe.cafeId}`);
-				fs.mkdir(uploadDir);
+				fs.mkdir(uploadDir, (err) => {
+					if (err) throw err;
+				});
 			}
 		});	
 	});
