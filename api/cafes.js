@@ -398,6 +398,8 @@ router.post('/atonce', (req, res) => {
 					if (err) throw err;
 				});
 			}
+			
+			res.status(200).json(util.successTrue());
 		});	
 	});
 });

@@ -166,11 +166,11 @@ router.get('/myitems', util.isLoggedin, (req, res) => {
     if (err) return res.status(500).json(util.successFalse(err));
     if (!user) return res.status(404).json(util.successFalse(null, '등록되지 않은 사용자입니다.'));
     
-    Cafe.find({cafeId: {$in: user.myItemIds}}, (err, items) => {
+    Item.find({itemId: {$in: user.myItemIds}}, (err, items) => {
       if (err) return res.status(500).json(util.successFalse(err));
       if (!items) return res.status(404).json(util.successFalse(null, '등록된 마이카페메뉴가 없습니다.'));
       
-      res.status(200).json(util.successTrue(user.myItemIds));
+      res.status(200).json(util.successTrue(items));
     });
   });
 });
