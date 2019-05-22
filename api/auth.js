@@ -28,7 +28,7 @@ router.post('/login', (req,res,next) => {
   },
   (req,res,next) => {
     User.findOne({email:req.body.email})
-    .select({userId:1, nickname:1, password:1})
+    .select({userId:1, email:1, nickname:1, password:1})
     .exec((err,user) => {
       if(err) return res.json(util.successFalse(err));
       else if(!user||!user.authenticate(req.body.password))
