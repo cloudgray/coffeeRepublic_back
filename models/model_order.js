@@ -4,6 +4,7 @@ OrderSchema = mongoose.Schema({
   orderId: {type:String},
   userId: {type:String},
   cafeId: {type:String},
+	cafeName: {type:String},
   orderNo: {type:Number, default:0},         // {coffeeshopId:String, myNum:Number}
   totalPrice: {type: Number, default:0},
 	contents: [{itemName:String, itemPrice:Number}],

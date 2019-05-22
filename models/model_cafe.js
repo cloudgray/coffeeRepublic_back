@@ -17,7 +17,10 @@ var CafeSchema = new mongoose.Schema({
   images: [{type: String}],
 	rating: [{type: Number}],
 	reviewIds: [{type: mongoose.Schema.ObjectId}],
-  maxOrderNum:{type:Number},
+  maxOrderNum:{type: Number},
+	openHour: {weekday:{type:Number}, weekend:{type:Number}},
+	closeHour: {weekday:{type:Number}, weekend:{type:Number}}, 
+	options: {shop:{type:Boolean, default:true}, togo:{type:Boolean, default:true}},
   deprecated: {type: Boolean, default: false},
 	created_at: {type: Date, index: {unique: false}, 'default': Date.now},
 	updated_at: {type: Date, index: {unique: false}, 'default': Date.now}

@@ -61,7 +61,18 @@ router.get('/', (req, res) => {
   Cafe.find({"deprecated":false}, (err, cafes) => {
     if (err) return res.status(500).json(util.successFalse(err));
     if (!cafes) return res.status(404).json(util.successFalse(null, '등록된 카페가 없습니다.'));
-    res.status(200).json(util.successTrue(cafes));
+		
+		var data = [];
+		for (var i in cafes) {
+			var cafe = {
+				name:cafe.name,
+				rating:cafe.rating,
+				reviews:cafe.reviewIds.length
+			}	
+			data.push(cafe);
+		}
+		
+    res.status(200).json(util.successTrue(data));
   });  
 });
 

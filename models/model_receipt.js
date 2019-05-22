@@ -6,13 +6,8 @@ var ReceiptSchema = mongoose.Schema({
   orderId: {type:String},
   receiptId: {type:String},
 	totalPrice: {type: Number, default:0},
-	contents: [
-    {
-      itemName:String, 
-      itemPrice:Number
-    }
-  ],
-  canceled:{type:Boolean, default: false},
+	contents: [{itemName:String, itemPrice:Number}],
+  canceled: {type:Boolean, default: false},
 	created_at: {type:Date, default: Date.now},
   updated_at: {type:Date, default: Date.now}
 });
