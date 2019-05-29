@@ -53,6 +53,16 @@ router.post('/', util.isLoggedin, util.isStaff, (req, res) => {
 });
 
 
+// 카페 검색
+router.get('/search/:keyword', (req, res) => {
+	
+});
+
+
+
+
+
+
 
 // 카페 리스트 가져오기
 router.get('/', (req, res) => {
@@ -62,12 +72,15 @@ router.get('/', (req, res) => {
     if (err) return res.status(500).json(util.successFalse(err));
     if (!cafes) return res.status(404).json(util.successFalse(null, '등록된 카페가 없습니다.'));
 		
+		console.log(cafes);
 		var data = [];
 		for (var i in cafes) {
 			var cafe = {
-				name:cafe.name,
-				rating:cafe.rating,
-				reviews:cafe.reviewIds.length
+				name:cafes[i].name,
+				rating:cafes[i].rating,
+				reviews:cafes[i].reviewIds.length,
+				signatures:cafes[i].signatureItems,
+				img:cafes[i].profileImg
 			}	
 			data.push(cafe);
 		}
