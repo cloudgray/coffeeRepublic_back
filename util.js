@@ -77,4 +77,7 @@ util.isOwner = function(req, res, next) {
 	});
 }
 
+// order queues
+util.queues = {};
+
 module.exports = util;

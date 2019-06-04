@@ -56,10 +56,44 @@ router.post('/', util.isLoggedin, util.isStaff, (req, res) => {
 // 카페 검색
 router.get('/search/:keyword', (req, res) => {
 	
+	var cafelist = [];
+	var keys = req.params.keyword.time.split('');
+	for (var i in keys) {
+		if (keys[i] == "카페" || keys[i] == "cafe")
+			keys.splice(i, 1);
+	}
+	console.log(keys);
+	
+	// keyword를 띄어쓰기 단위로 쪼개서 배열에 넣고 
+	// 배열의 각 원소가 cafe.name에 포함되는지 반복문을 돌려보자...
+	Cafe.find({}, (err, cafes) => {
+		if (err) return res.status(500).json(util.successFalse(err));
+    if (!cafes) return res.status(404).json(util.successFalse(null, '등록된 카페가 없습니다.'));
+		
+		var flag = false;
+		for (var i in keys) {
+			for (var j in cafes) {
+				for (var k=0; k < cafes[j].name - keys[i].length + 1; k++) {
+					if (cafes[j].name.slice(k, k + keys[i].length) == keys[i]) {
+						var cafe = {
+							cafeId:cafes[i].cafeId,
+							name:cafes[i].name,
+							rating:cafes[i].rating,
+							reviews:cafes[i].reviewIds.length,
+							signatures:cafes[i].signatureItems,
+							img:cafes[i].profileImg,
+							congestion: (util.queues[cafes[i].cafeId].pendingOrders.length / cafes.maxOrderNum).toFixed(1)
+						}	
+						cafelist.push(cafe);
+						flag = true;
+						break;
+					}
+					if (flag == true) break;
+				}
+			}
+		}
+	});
 });
-
-
-
 
 
 
@@ -81,7 +115,8 @@ router.get('/', (req, res) => {
 				rating:cafes[i].rating,
 				reviews:cafes[i].reviewIds.length,
 				signatures:cafes[i].signatureItems,
-				img:cafes[i].profileImg
+				img:cafes[i].profileImg,
+				congestion: (util.queues[cafes[i].cafeId].pendingOrders.length / cafes.maxOrderNum).toFixed(1)
 			}	
 			data.push(cafe);
 		}

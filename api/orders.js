@@ -6,26 +6,18 @@ const util = require('../util');
 const Cafe = require('../models/model_cafe');
 const User = require('../models/model_user');
 const Item = require('../models/model_item');
-const Receipt = require('../models/model_receipt');
 const Order = require('../models/model_order');
+const moment = require('moment');
 
-
+// push msg sender
 var sender = new fcm.Sender(config.fcm_api_key);
 
-var queues = {};
-Cafe.find({deprecated:false}, (err, cafes) => {
-  for (var i in cafes) {
-    var orderQueue = {
-      nextOrderNo: 1,
-      pendingOrders: []
-    }
-    queues[cafes[i].cafeId] = orderQueue;
-  }
-})
+// { 카페 아이디 : 주문 큐 } - 전역변수로 사용하기 위해 util.js 에 빈 객체 하나 만들어둠
+var queues = util.queues;
 
 // 주문하기
 // 푸시 알림 관련하여 추가 구현 필요
-router.post('/:cafeId', util.isLoggedin, (req, res) => {
+router.post('/:cafeId', util.isLoggedin, (req, res) => {	
 	Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
 		if (err||!cafe) return res.status(500).json(util.successFalse(err));
 		
@@ -33,19 +25,33 @@ router.post('/:cafeId', util.isLoggedin, (req, res) => {
 			if (err) return res.status(500).json(util.successFalse(err));
 			if (!staffs) return res.status(200).json(util.successFalse(null, '현재 예약주문이 불가능합니다.'));
 
-			// 주문 객체 생성
-			var order = req.body;
+			if (!queues[req.params.cafeId]){
+				queues[req.params.cafeId] = {
+					nextOrderNo: 1,
+					pendingOrders: []
+				}
+			}
+			
+			// 주문 객체 생성			
+			var order = new Order();
+			order.desiredTime = req.body.desiredTime;
+			order.contents = req.body.contents;
+			order.totalPrice = req.body.totalPrice;
+			order.useCoupon = req.body.useCoupon;
+			
 			order.orderId = randomstring.generate(16);
 			order.userId = req.decoded.userId;
 			order.cafeId = req.params.cafeId;
 			order.cafeName = cafe.name;
 			order.orderNo = queues[req.params.cafeId].nextOrderNo++;
+			order.accept = false;
 			order.canceled = false;
 			order.created_at = Date.now();
 			order.updated_at = Date.now();
 
 			// 주문큐에 주문 객체 push
 			queues[req.params.cafeId].pendingOrders.push(order);
+			const myTurn = queues[req.params.cafeId].pendingOrders.length;
 
 
 			// 카페 직원한테 보낼 메세지 생성, 전송
@@ -61,8 +67,23 @@ router.post('/:cafeId', util.isLoggedin, (req, res) => {
 				sender.send(message, staffs[i].fcmToken, (err, result) => {
 					if (err) return res.status(500).json(util.successFalse(err));
 					console.log('주문 들어갑니다~ \n' + order);
+					
 				});
 			}
+			
+			// 손님 client에게는 예상 시간을 보내줘야
+			var now = moment();
+			var pickupTime = moment(order.desiredTime, "HH:mm");
+			if (now.add(myTurn * 1, "minutes") > pickupTime) {
+				pickupTime = now;
+			} 
+			var data = {
+				orderId:order.orderId,
+				contents:order.contents,
+				myTurn: myTurn,
+				pickupTime: pickupTime.hour() + ":" + pickupTime.minute()
+			}
+			res.status(200).json(util.successTrue(data));
 		});
 	});
 });
@@ -82,11 +103,7 @@ router.put('/:cafeId/:orderId', util.isLoggedin, util.isStaff, (req, res) => {
 			res.status(200).json(util.successTrue('accepted'));
 			
 			// 영수증 저장
-			var newReceipt = new Receipt();
-			for (var p in order) {
-				newReceipt[p] = order[p];
-			}
-			newReceipt.save()
+			order.save()
 				.exec(receipt => res.status(200).json(util.successTrue(receipt)))
 				.catch(err => res.status(500).json(util.successFalse(err)));
 			

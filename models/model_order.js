@@ -5,9 +5,9 @@ OrderSchema = mongoose.Schema({
   userId: {type:String},
   cafeId: {type:String},
 	cafeName: {type:String},
-  orderNo: {type:Number, default:0},         // {coffeeshopId:String, myNum:Number}
-  totalPrice: {type: Number, default:0},
-	contents: [{itemName:String, itemPrice:Number}],
+  orderNo: {type:Number},     
+  totalPrice: {type: Number},
+	contents: {type:Array},
 	canceled: {type:Boolean, default: false},
 	created_at: {type:Date, default: Date.now},
   updated_at: {type:Date, default: Date.now}
