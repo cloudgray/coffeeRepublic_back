@@ -108,7 +108,11 @@ router.get('/', (req, res) => {
 		
 		console.log(cafes);
 		var data = [];
+		var congestion = 0;
+		
 		for (var i in cafes) {
+			if (util.queues[cafes[i].cafeId])
+				congestion = (util.queues[cafes[i].cafeId].pendingOrders.length / cafes.maxOrderNum).toFixed(1);
 			var cafe = {
 				cafeId:cafes[i].cafeId,
 				name:cafes[i].name,
@@ -116,7 +120,7 @@ router.get('/', (req, res) => {
 				reviews:cafes[i].reviewIds.length,
 				signatures:cafes[i].signatureItems,
 				img:cafes[i].profileImg,
-				congestion: (util.queues[cafes[i].cafeId].pendingOrders.length / cafes.maxOrderNum).toFixed(1)
+				congestion: congestion
 			}	
 			data.push(cafe);
 		}
