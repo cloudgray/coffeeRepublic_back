@@ -1,14 +1,13 @@
 var router = require('express').Router();
 const fcm = require('node-gcm');
-const Queue = require('better-queue');
 const randomstring = require('randomstring');
+const config = require('../config/config');
 const util = require('../util');
 const Cafe = require('../models/model_cafe');
 const User = require('../models/model_user');
 const Item = require('../models/model_item');
 const Receipt = require('../models/model_receipt');
 const Order = require('../models/model_order');
-const Device = require('../models/model_device');
 
 
 var sender = new fcm.Sender(config.fcm_api_key);

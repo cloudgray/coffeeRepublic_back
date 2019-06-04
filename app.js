@@ -12,7 +12,7 @@ const config = require('./config/config');
 const cafes = require('./api/cafes');
 const users = require('./api/users');
 const auth = require('./api/auth');
-const order = require('./api/orders');
+const orders = require('./api/orders');
 
 
 // db 연결
@@ -60,7 +60,7 @@ app.use(logger('dev'));
 app.use('/api/cafes', cafes);
 app.use('/api/users', users);
 app.use('/api/auth', auth);
-app.use('api/orders', orders);
+app.use('/api/orders', orders);
 
 
 
