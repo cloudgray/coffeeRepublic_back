@@ -106,7 +106,6 @@ router.get('/', (req, res) => {
     if (err) return res.status(500).json(util.successFalse(err));
     if (!cafes) return res.status(404).json(util.successFalse(null, '등록된 카페가 없습니다.'));
 		
-		console.log(cafes);
 		var data = [];
 		var congestion = 0;
 		
