@@ -76,6 +76,7 @@ router.get('/', (req, res) => {
 		var data = [];
 		for (var i in cafes) {
 			var cafe = {
+				cafeId:cafes[i].cafeId,
 				name:cafes[i].name,
 				rating:cafes[i].rating,
 				reviews:cafes[i].reviewIds.length,
