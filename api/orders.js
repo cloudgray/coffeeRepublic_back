@@ -33,7 +33,7 @@ router.post('/:cafeId', util.isLoggedin, (req, res) => {
 			}
 			
 			// 주문 객체 생성			
-			var order = new Order();
+			var order = {};
 			order.desiredTime = req.body.desiredTime;
 			order.contents = req.body.contents;
 			order.totalPrice = req.body.totalPrice;
@@ -46,8 +46,6 @@ router.post('/:cafeId', util.isLoggedin, (req, res) => {
 			order.orderNo = queues[req.params.cafeId].nextOrderNo++;
 			order.accept = false;
 			order.canceled = false;
-			order.created_at = Date.now();
-			order.updated_at = Date.now();
 
 			// 주문큐에 주문 객체 push
 			queues[req.params.cafeId].pendingOrders.push(order);
@@ -70,7 +68,7 @@ router.post('/:cafeId', util.isLoggedin, (req, res) => {
 					
 				});
 			}
-			
+		
 			// 손님 client에게는 예상 시간을 보내줘야
 			var now = moment();
 			var pickupTime = moment(order.desiredTime, "HH:mm");
@@ -78,10 +76,11 @@ router.post('/:cafeId', util.isLoggedin, (req, res) => {
 				pickupTime = now;
 			} 
 			var data = {
-				orderId:order.orderId,
-				contents:order.contents,
+				orderId: order.orderId,
+				contents: order.contents,
+				orderNo: order.orderNo,
 				myTurn: myTurn,
-				pickupTime: pickupTime.hour() + ":" + pickupTime.minute()
+				pickupTime: pickupTime.hour("HH") + ":" + pickupTime.minute().format("mm")
 			}
 			res.status(200).json(util.successTrue(data));
 		});

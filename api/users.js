@@ -216,6 +216,17 @@ router.delete('/myitems/:itemId', util.isLoggedin, (req, res) => {
 });
 
 
+// 내가 작성한 리뷰 목록 가져오기
+router.get('/reviews', (req, res) => {
+	Review.find({userId:req.decoded.userId}, (err, reviews) => {
+		
+	});
+});
+
+
+
+
+
 // private functions
 function checkPermission(req, res, next) {
 	User.findOne({
@@ -227,8 +238,6 @@ function checkPermission(req, res, next) {
 		else next();
 	});
 }
-
-
 
 
 

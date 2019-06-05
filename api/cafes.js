@@ -7,6 +7,7 @@ const randomstring = require('randomstring');
 const Cafe = require('../models/model_cafe');
 const Item = require('../models/model_item');
 const User = require('../models/model_user');
+const Review = require('../models/model_review');
 const Image = require('../models/model_image');
 const util = require('../util');
 
@@ -141,7 +142,7 @@ router.get('/', (req, res) => {
 });
 
 // 가까운 커피숍 10개 조회
-router.get('/near', (req, res) => {
+router.post('/near', (req, res) => {
 	console.log('cafe 모듈 안에 있는 findNear 호출됨.');
   
 	var maxDistance = 3000;
@@ -162,7 +163,7 @@ router.get('/near', (req, res) => {
 				cafeId:cafes[i].cafeId,
 				name:cafes[i].name,
 				rating:cafes[i].rating,
-				reviews:cafes[i].reviewIds.length,
+				reviews:cafes[i].reviews,
 				signatures:cafes[i].signatureItems,
 				img:cafes[i].profileImg,
 				congestion: congestion
@@ -441,6 +442,39 @@ router.post('/:cafeId/:itemId/img', util.isLoggedin, util.isStaff, upload.single
 		});
   });
 });
+
+
+// 리뷰 등록
+router.post('/:cafeId/reviews', util.isLoggedin, (req, res) => {
+	Cafe.findOne({cafeId: req.params.cafeId}, (err, cafe) => {
+		if (err) return res.status(500).json(util.successFalse(err));
+    if (!cafe) return res.status(404).json(util.successFalse(null, '존재하지 않는 카페입니다.'));
+		
+		User.findOne({userId: req.decoded.userId}, (req, res) => {
+			if (err) return res.status(500).json(util.successFalse(err));
+    	if (!user) return res.status(404).json(util.successFalse(null, '존재하지 않는 유저입니다.'));
+			
+			var newReview = new Review();
+			newReview.reviewId = randomstring.generate(16);
+			newReview.cafeId = req.params.cafeId;
+			newReview.userId = req.decoded.userId;
+			newReview.nickname = req.decoded.nickname;
+			
+			newReview.save()
+				.then(review => res.status(200).json(util.successTrue(review)))
+				.catch(err => res.status(500).json(util.successFalse(err)));
+		});
+		
+		cafe.reviews++;
+		cafe.save()
+			.then(cafe => res.status(200).json(util.successTrue()))
+			.catch(err => res.status(500).json(util.successFalse(err)));
+	});
+});
+
+
+
+
 
 
 
