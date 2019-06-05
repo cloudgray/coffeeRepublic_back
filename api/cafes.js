@@ -82,7 +82,7 @@ router.get('/search', (req, res) => {
 							cafeId:cafes[i].cafeId,
 							name:cafes[i].name,
 							rating:cafes[i].rating,
-							reviews:cafes[i].reviewIds.length,
+							reviews:cafes[i].reviews,
 							signatures:cafes[i].signatureItems,
 							img:cafes[i].profileImg,
 							congestion: congestion
@@ -129,7 +129,7 @@ router.get('/', (req, res) => {
 				cafeId:cafes[i].cafeId,
 				name:cafes[i].name,
 				rating:cafes[i].rating,
-				reviews:cafes[i].reviewIds.length,
+				reviews:cafes[i].reviews,
 				signatures:cafes[i].signatureItems,
 				img:cafes[i].profileImg,
 				congestion: congestion
