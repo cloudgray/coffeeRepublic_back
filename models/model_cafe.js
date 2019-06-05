@@ -17,7 +17,7 @@ var CafeSchema = new mongoose.Schema({
   images: [{type: String}],
 	rating: [{type: Number}],
 	reviews: {type: String},
-  maxOrderNum:{type: Number},
+  maxOrderNum:{type: Number, default:5},
 	openHour: {weekday:{type:Number}, weekend:{type:Number}},
 	closeHour: {weekday:{type:Number}, weekend:{type:Number}}, 
 	options: {shop:{type:Boolean, default:true}, togo:{type:Boolean, default:true}},

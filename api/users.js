@@ -217,12 +217,28 @@ router.delete('/myitems/:itemId', util.isLoggedin, (req, res) => {
 
 
 // 내가 작성한 리뷰 목록 가져오기
-router.get('/reviews', (req, res) => {
+router.get('/reviews', util.isLoggedin, (req, res) => {
 	Review.find({userId:req.decoded.userId}, (err, reviews) => {
-		
+		if (err) return res.status(500).json(util.successFalse(err));
+    
+		res.status(200).json(util.successTrue(reviews));
 	});
 });
 
+// 내가 작성한 리뷰 수정하기
+router.put('/reviews/:reviewId', (req. res) => {
+	Review.findOne({reviewId:req.params.reviewId}, (err, reviews) => {
+		if (err) return res.status(500).json(util.successFalse(err));
+		if (!review) return res.status(404).json(util.successFalse(null, "해당 리뷰를 찾을 수 없습니다."));
+		if (review.userId != req.params.userId) 
+			return res.status(400).json(util.successFalse(null, "다른 사용자의 리뷰를 수정할 수 없습니다."));
+		review.rating = req.body.rating;
+		review.content = req.body.content;
+		review.save()
+			.then(review => res.status(200).json(util.successTrue(review)))
+			.catch(err => res.status(500).json(util.successFalse(err)));
+	});
+});
 
 
 

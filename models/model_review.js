@@ -4,6 +4,7 @@ var Schema = mongoose.Schema;
 var ReviewSchema = new Schema({
 	reviewId: {type: String},
 	cafeId: {type: String},
+	cafeName: {type: String},
 	userId: {type: String},
 	nickname: {type: String},
 	content: {type: String},

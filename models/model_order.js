@@ -8,6 +8,8 @@ OrderSchema = mongoose.Schema({
   orderNo: {type:Number},     
   totalPrice: {type: Number},
 	contents: {type:Array},
+	confirmed: {type:Booliean, default: false},
+	accepted: {type:Boolean, default: false},
 	canceled: {type:Boolean, default: false},
 	created_at: {type:Date, default: Date.now},
   updated_at: {type:Date, default: Date.now}

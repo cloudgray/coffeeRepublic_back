@@ -44,11 +44,10 @@ router.post('/:cafeId', util.isLoggedin, (req, res) => {
 			order.cafeId = req.params.cafeId;
 			order.cafeName = cafe.name;
 			order.orderNo = queues[req.params.cafeId].nextOrderNo++;
-			order.accept = false;
-			order.canceled = false;
 
 			// 주문큐에 주문 객체 push
-			queues[req.params.cafeId].pendingOrders.push(order);
+			// queues[req.params.cafeId].pendingOrders.push(order);
+			insertOrder(queues[req.params.cafeId].pendingOrders, order);
 			const myTurn = queues[req.params.cafeId].pendingOrders.length;
 
 
@@ -65,7 +64,6 @@ router.post('/:cafeId', util.isLoggedin, (req, res) => {
 				sender.send(message, staffs[i].fcmToken, (err, result) => {
 					if (err) return res.status(500).json(util.successFalse(err));
 					console.log('주문 들어갑니다~ \n' + order);
-					
 				});
 			}
 		
@@ -80,7 +78,7 @@ router.post('/:cafeId', util.isLoggedin, (req, res) => {
 				contents: order.contents,
 				orderNo: order.orderNo,
 				myTurn: myTurn,
-				pickupTime: pickupTime.hour("HH") + ":" + pickupTime.minute().format("mm")
+				pickupTime: pickupTime.hour().format("HH") + ":" + pickupTime.minute().format("mm")
 			}
 			res.status(200).json(util.successTrue(data));
 		});
@@ -88,27 +86,70 @@ router.post('/:cafeId', util.isLoggedin, (req, res) => {
 });
 
 
-// 주문 수락/거부하기
-router.put('/:cafeId/:orderId', util.isLoggedin, util.isStaff, (req, res) => { 
-  var pendingOrders = queues[req.params.cafeId].pendingOrders;
-
+// 주문 확정하기 (손님) 
+router.post('/:cafeId/:orderId', util.isLoggedin, (req, res) => {
+	var pendingOrders = queues[req.params.cafeId].pendingOrders; 
+	
 	for (var i in pendingOrders) {
     if (pendingOrders[i].orderId == req.params.orderId) {
 			var order = pendingOrders[i];
-			order.accept = req.body.accept;
+			order.confirmed = req.body.confirmed;
 			
-			if (!pendingOrders[i].accept) 
-				return res.status(200).json(util.successFalse(null, 'rejected'));
-			res.status(200).json(util.successTrue('accepted'));
+			if (!pendingOrders[i].confirmed) 
+				return res.status(200).json(util.successTrue());
+			res.status(200).json(util.successTrue('confirmed'));
+			
+			var orderHistory = new Order();
+			for (var p in order) {
+				orderHistory[p] = order[p];
+			}
 			
 			// 영수증 저장
-			order.save()
+			orderHistory.save()
 				.exec(receipt => res.status(200).json(util.successTrue(receipt)))
 				.catch(err => res.status(500).json(util.successFalse(err)));
 			
 			return;
 		}  
-  }	
+  }
+});
+
+
+// 주문 수락하기 (카페)
+router.put('/:cafeId/:orderId', util.isLoggedin, util.isStaff, (req, res) => { 
+  var pendingOrders = queues[req.params.cafeId].pendingOrders;
+	var order = {};
+	for (var i in pendingOrders) {
+    if (pendingOrders[i].orderId == req.params.orderId) {
+			pendingOrders[i].accepted = req.body.accepted;
+			order = pendingOrders[i];
+			break;
+		}
+	}
+
+	// 손님에게 주문이 수락되었음을 알림
+	var message = new fcm.Message({
+		priority: 'high',
+		timeToLive: 10
+	});
+
+	var data = {
+		orderId: order.orderId,
+		orderNo: order.orderNo,
+		pickupTime: order.pickupTime,
+		accepted: order.accepted
+	};
+
+	message.addData('command', 'show');
+	message.addData('type', 'application/json');
+	message.addData('data', data);
+
+	User.findOne({userId: order.userId}, (err, user) => {
+		sender.send(message, staffs[i].fcmToken, (err, result) => {
+			if (err) return res.status(500).json(util.successFalse(err));
+			res.status(200).json(util.successTrue(result));
+		});
+	});
 });
 
 
@@ -123,7 +164,7 @@ router.get('/:cafeId/myorder', (req, res) => {
 });
 
 // 주문 큐 가져오기 (카페)
-router.get('/:cafeId', util.isLoggedin, util.isStaff, (req, res) => {
+router.get('/:cafeId/orderlist', util.isLoggedin, util.isStaff, (req, res) => {
 	if (queues[req.params.cafeId] == undefined )
 		return res.stauts(404).json(util.successFalse(null, '존재하지 않는 카페입니다.'))
 	res.status(200).json(queues[req.params.cafeId].pendingOrders);
@@ -137,7 +178,7 @@ router.post('/:cafeId/:orderId/cancel', (req, res) => {
 
 
 // 수령 완료
-router.post('/:cafeId/:orderId/receive', (req, res) => {
+router.post('/:cafeId/:orderId/complete', (req, res) => {
   // 큐에서 빼기
 	var pendingOrders = queues[req.params.cafeId].pendingOrders
 	var cafeName;
@@ -166,6 +207,23 @@ router.post('/:cafeId/:orderId/receive', (req, res) => {
 	
 	
 });
+
+// 주문을 주문큐에 시간 순서에 맞게 삽입한다.
+var insertOrder = function(queue, order) {
+	for (var i in queue) {
+		if (queue[i].desiredTime < order.desiredTime) {
+			queue.splice(i, 0, order);
+		}
+	}
+}
+
+
+
+
+
+
+
+
 
 
 

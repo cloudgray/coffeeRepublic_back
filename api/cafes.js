@@ -457,6 +457,7 @@ router.post('/:cafeId/reviews', util.isLoggedin, (req, res) => {
 			var newReview = new Review();
 			newReview.reviewId = randomstring.generate(16);
 			newReview.cafeId = req.params.cafeId;
+			newReview.cafeName = cafe.name;
 			newReview.userId = req.decoded.userId;
 			newReview.nickname = req.decoded.nickname;
 			
