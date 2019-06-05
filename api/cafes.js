@@ -54,10 +54,10 @@ router.post('/', util.isLoggedin, util.isStaff, (req, res) => {
 
 
 // 카페 검색
-router.get('/search/:keyword', (req, res) => {
+router.get('/search', (req, res) => {
 	
 	var cafelist = [];
-	var keys = req.params.keyword.trim().split(' ');
+	var keys = req.body.keyword.trim().split(' ');
 	for (var i in keys) {
 		if (keys[i] == "카페" || keys[i] == "cafe")
 			keys.splice(i, 1);
@@ -70,11 +70,13 @@ router.get('/search/:keyword', (req, res) => {
 		if (err) return res.status(500).json(util.successFalse(err));
     if (!cafes) return res.status(404).json(util.successFalse(null, '등록된 카페가 없습니다.'));
 		
-
+		var congestion = 0;
 		for (var i in keys) {
 			for (var j in cafes) {
-				for (var k=0; k < cafes[j].name - keys[i].length + 1; k++) {
+				for (var k=0; k < cafes[j].name.length + keys[i].length - 1; k++) {
 					if (cafes[j].name.slice(k, k + keys[i].length) == keys[i]) {
+						if (util.queues[cafes[i].cafeId])
+							congestion = (util.queues[cafes[i].cafeId].pendingOrders.length / cafes.maxOrderNum).toFixed(1);
 						var cafe = {
 							cafeId:cafes[i].cafeId,
 							name:cafes[i].name,
@@ -82,7 +84,7 @@ router.get('/search/:keyword', (req, res) => {
 							reviews:cafes[i].reviewIds.length,
 							signatures:cafes[i].signatureItems,
 							img:cafes[i].profileImg,
-							congestion: (util.queues[cafes[i].cafeId].pendingOrders.length / cafes.maxOrderNum).toFixed(1)
+							congestion: congestion
 						}	
 						//if (cafelist.find(cafe)) break;
 						cafelist.push(cafe);
@@ -96,6 +98,16 @@ router.get('/search/:keyword', (req, res) => {
 });
 
 
+//
+var compareString = function(str1, str2, callback) {
+	var w = 0;	// window size
+	var l = (str1.length >= str2.length ? str1 : str2);
+	var s = (a == str1 ? str2 : str1);
+	
+	for (var i in str1.length + str2.length - 1) {
+		
+	}
+}
 
 
 // 카페 리스트 가져오기
@@ -142,7 +154,10 @@ router.get('/near', (req, res) => {
     if (err) return res.status(400).json(util.successFalse(err, '잘못된 요청입니다.')); 
     if (!cafes) return res.status(404).json(util.successFalse(null, '주변에 예약 주문이 가능한 카페가 없습니다.ㅠㅠ'));
 		var data = [];
+		var congestion = 0;
 		for (var i in cafes) {
+			if (util.queues[cafes[i].cafeId])
+				congestion = (util.queues[cafes[i].cafeId].pendingOrders.length / cafes.maxOrderNum).toFixed(1);
 			var cafe = {
 				cafeId:cafes[i].cafeId,
 				name:cafes[i].name,
@@ -150,7 +165,7 @@ router.get('/near', (req, res) => {
 				reviews:cafes[i].reviewIds.length,
 				signatures:cafes[i].signatureItems,
 				img:cafes[i].profileImg,
-				congestion: (util.queues[cafes[i].cafeId].pendingOrders.length / cafes.maxOrderNum).toFixed(1)
+				congestion: congestion
 			}	
 			data.push(cafe);
 		}
