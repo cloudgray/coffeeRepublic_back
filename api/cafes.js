@@ -9,6 +9,7 @@ const Item = require('../models/model_item');
 const User = require('../models/model_user');
 const Review = require('../models/model_review');
 const Image = require('../models/model_image');
+const config = require('../config/config');
 const util = require('../util');
 
 
@@ -386,8 +387,9 @@ router.post('/:cafeId/profileimg', util.isLoggedin, util.isStaff, upload.single(
     
     const remove = path.join(__dirname, '..', 'public');
     const relPath = req.file.path.replace(remove, '');
+		const imgUrl = config.server_url + relPath;
     const newImage = new Image(req.body);
-    newImage.path = relPath;
+    newImage.path = imgUrl;
     
     newImage.save((err, image) => {
       if (err) return res.status(500).json(util.successFalse(err));
