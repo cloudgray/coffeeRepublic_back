@@ -226,7 +226,7 @@ router.get('/reviews', util.isLoggedin, (req, res) => {
 });
 
 // 내가 작성한 리뷰 수정하기
-router.put('/reviews/:reviewId', (req. res) => {
+router.put('/reviews/:reviewId', (req, res) => {
 	Review.findOne({reviewId:req.params.reviewId}, (err, reviews) => {
 		if (err) return res.status(500).json(util.successFalse(err));
 		if (!review) return res.status(404).json(util.successFalse(null, "해당 리뷰를 찾을 수 없습니다."));
