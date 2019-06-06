@@ -28,7 +28,7 @@ router.post('/login', (req,res,next) => {
   },
   (req,res,next) => {
     User.findOne({email:req.body.email})
-    .select({userId, nickname:1, password:1})
+    .select({userId:1, email:1, nickname:1, password:1})
     .exec((err,user) => {
       if(err) return res.json(util.successFalse(err));
       else if(!user||!user.authenticate(req.body.password))
@@ -41,7 +41,10 @@ router.post('/login', (req,res,next) => {
         var options = {expiresIn: 60*60*24};
         jwt.sign(payload, config.secret, options, (err, token) => {
           if(err) return res.json(util.successFalse(err));
-          res.json(util.successTrue(token));
+					const data = {email: user.email, 
+												nickname: user.nickname, 
+												token: token}
+          res.json(util.successTrue(data));
         });
       }
     });
@@ -98,7 +101,7 @@ router.post('/stafflogin', (req,res,next) => {
 
 // refresh
 router.get('/refresh', util.isLoggedin, (req,res,next) => {
-    User.findById(req.decoded._id)
+    User.findOne({userId:req.decoded.userId})
     .exec((err,user) => {
       if(err||!user) return res.json(util.successFalse(err));
       else {
@@ -106,7 +109,7 @@ router.get('/refresh', util.isLoggedin, (req,res,next) => {
           userId : user.userId,
           nickname: user.nickname
         };
-        var options = {expiresIn: 60*60*24};
+        var options = {expiresIn: 60*60*24*30};		// 토큰 만료기간: 한 달
         jwt.sign(payload, config.secret, options, (err, token) => {
           if(err) return res.json(util.successFalse(err));
           res.json(util.successTrue(token));

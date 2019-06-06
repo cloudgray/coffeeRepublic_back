@@ -4,9 +4,12 @@ OrderSchema = mongoose.Schema({
   orderId: {type:String},
   userId: {type:String},
   cafeId: {type:String},
-  orderNum: {type:Number, default:0},         // {coffeeshopId:String, myNum:Number}
-  totalPrice: {type: Number, default:0},
-	contents: [{itemName:String, itemPrice:Number}],
+	cafeName: {type:String},
+  orderNo: {type:Number},     
+  totalPrice: {type: Number},
+	contents: {type:Array},
+	confirmed: {type:Boolean, default: false},
+	accepted: {type:Boolean, default: false},
 	canceled: {type:Boolean, default: false},
 	created_at: {type:Date, default: Date.now},
   updated_at: {type:Date, default: Date.now}

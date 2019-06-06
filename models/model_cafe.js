@@ -1,10 +1,8 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-
+const mongoose = require('mongoose');
 
 
 // 스키마 정의
-var CafeSchema = new Schema({
+var CafeSchema = new mongoose.Schema({
   cafeId: {type: String, 'default':''},
 	name: {type: String, index: 'hashed', 'default':''},
 	address: {type: String, 'default':''},
@@ -14,8 +12,15 @@ var CafeSchema = new Schema({
 		coordinates: [{type: "Number"}]
 	},
   itemIds: [{type:String}],
-  maxOrderNum:{type:Number},
-  pendingOrders:[{orderId:String}],
+	signatureItems: [{type:String}],
+  profileImg: {type: String, default: ''},
+  images: [{type: String}],
+	rating: [{type: Number}],
+	reviews: {type: String},
+  maxOrderNum:{type: Number, default:5},
+	openHour: {weekday:{type:Number}, weekend:{type:Number}},
+	closeHour: {weekday:{type:Number}, weekend:{type:Number}}, 
+	options: {shop:{type:Boolean, default:true}, togo:{type:Boolean, default:true}},
   deprecated: {type: Boolean, default: false},
 	created_at: {type: Date, index: {unique: false}, 'default': Date.now},
 	updated_at: {type: Date, index: {unique: false}, 'default': Date.now}
@@ -34,7 +39,7 @@ CafeSchema.static('findAll', function(callback) {
 CafeSchema.static('findNear', function(longitude, latitude, maxDistance, num, callback) {
 	console.log('CafeSchema의 findNear 호출됨.');
 
-	this.find({"deprecated":false}).where('geometry').near({center:{type:'Point', coordinates:[parseFloat(longitude), parseFloat(latitude)]}, maxDistance:maxDistance}).limit(num).exec(callback);
+	this.find({deprecated:false}).where('geometry').near({center:{type:'Point', coordinates:[longitude, latitude]}, maxDistance:maxDistance}).limit(num).exec(callback);
 });
 
 // 일정 범위 내의 커피숍 조회
