@@ -433,8 +433,9 @@ router.post('/:cafeId/:itemId/img', upload.single('data'), (req, res) => {
 		Item.findOne({itemId:req.params.itemId}, (err, item) => {
 			const remove = path.join(__dirname, '..', 'public');
 			const relPath = req.file.path.replace(remove, '');
+			const imgUrl = config.server_url + relPath;
 			const newImage = new Image(req.body);
-			newImage.path = relPath;
+			newImage.path = imgUrl;
 
 			newImage.save((err, image) => {
 				if (err) return res.status(500).json(util.successFalse(err));
