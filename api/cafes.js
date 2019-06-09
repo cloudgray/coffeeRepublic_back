@@ -133,6 +133,7 @@ router.get('/', (req, res) => {
 				reviews:cafes[i].reviews,
 				signatures:cafes[i].signatureItems,
 				img:cafes[i].profileImg,
+				geometry:cafes[i].geometry,
 				congestion: congestion
 			}	
 			data.push(cafe);
@@ -167,6 +168,7 @@ router.post('/near', (req, res) => {
 				reviews:cafes[i].reviews,
 				signatures:cafes[i].signatureItems,
 				img:cafes[i].profileImg,
+				geometry:cafes[i].geometry,
 				congestion: congestion
 			}	
 			data.push(cafe);
