@@ -547,7 +547,7 @@ router.post('/:cafeId/itemlist', (req, res) => {
     for (var i in req.body.itemlist) {
       namelist.push(itemlist[i].name);
     }
-    Item.find({name:{$in: namelist}}, (err, items) => {
+    Item.find({name:{$in: namelist}, cafeId:req.params.cafeId}, (err, items) => {
       if (err) return res.status(500).json(util.successFalse(err));
       if (items.length != 0) return res.status(400).json(util.successFalse(null, '중복되는 메뉴가 있습니다.'));
       
