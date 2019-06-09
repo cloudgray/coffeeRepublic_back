@@ -14,7 +14,7 @@ const util = require('../util');
 
 
 // 카페 등록 - 스테프로 로그인해야 한다
-router.post('/', util.isLoggedin, util.isStaff, (req, res) => {
+router.post('/', (req, res) => {
 	console.log('POST api/cafes called');
   
   User.findOne({userId:req.decoded.userId}, (err, user) => {
@@ -188,7 +188,7 @@ router.get('/:cafeId', (req, res) => {
 
 
 // 카페 정보 수정
-router.put('/:cafeId', util.isLoggedin, util.isStaff, (req, res) => {
+router.put('/:cafeId', (req, res) => {
   console.log('PUT /:cafeId called');
   Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
     if (err) return res.status(400).json(util.successFalse(err, '잘못된 요청입니다.')); 
@@ -242,7 +242,7 @@ router.get('/:cafeId/items', (req, res) => {
 });
 
 // 메뉴 등록
-router.post('/:cafeId/items', util.isLoggedin, util.isStaff, (req, res) => {
+router.post('/:cafeId/items', (req, res) => {
   Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
     if (err) return res.status(500).json(util.successFalse(err)); 
     if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
@@ -267,7 +267,7 @@ router.post('/:cafeId/items', util.isLoggedin, util.isStaff, (req, res) => {
 
 
 // 대표 메뉴 등록
-router.put('/:cafeId/signature/:itemId', util.isLoggedin, util.isStaff, (req, res) => {
+router.put('/:cafeId/signature/:itemId',  (req, res) => {
 	Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
 		if (err) return res.status(500).json(util.successFalse(err)); 
     if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
@@ -286,7 +286,7 @@ router.put('/:cafeId/signature/:itemId', util.isLoggedin, util.isStaff, (req, re
 
 
 // 메뉴 수정
-router.put('/:cafeId/items/:itemId', util.isLoggedin, util.isStaff, (req, res) => {
+router.put('/:cafeId/items/:itemId', (req, res) => {
   Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
     if (err) return res.status(500).json(util.successFalse(err)); 
     if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
@@ -307,7 +307,7 @@ router.put('/:cafeId/items/:itemId', util.isLoggedin, util.isStaff, (req, res) =
 });
 
 //메뉴 삭제
-router.delete('/:cafeId/items/:itemId', util.isLoggedin, util.isStaff, (req, res) => {
+router.delete('/:cafeId/items/:itemId', (req, res) => {
   Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
     if (err) return res.status(500).json(util.successFalse(err)); 
     if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
@@ -380,7 +380,7 @@ const upload = multer({
 
 
 // 카페 대표 이미지 등록/수정
-router.post('/:cafeId/profileimg', util.isLoggedin, util.isStaff, upload.single('data'), (req, res) => {
+router.post('/:cafeId/profileimg', upload.single('data'), (req, res) => {
   Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
     if (err) return res.status(500).json(util.successFalse(err));
     if (!cafe) return res.status(404).json(util.successFalse(null, '존재하지 않는 카페입니다.'));
@@ -403,7 +403,7 @@ router.post('/:cafeId/profileimg', util.isLoggedin, util.isStaff, upload.single(
 
 
 // 카페 대표 이미지 삭제
-router.delete('/:cafeId/profileimg', util.isLoggedin, util.isStaff, (req, res) => {
+router.delete('/:cafeId/profileimg', (req, res) => {
   Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
     if (err) return res.status(500).json(util.successFalse(err));
     if (!cafe) return res.status(404).json(util.successFalse(null, '존재하지 않는 카페입니다.'));
@@ -423,7 +423,7 @@ router.delete('/:cafeId/profileimg', util.isLoggedin, util.isStaff, (req, res) =
 });
 
 // 메뉴 이미지 등록/수정
-router.post('/:cafeId/:itemId/img', util.isLoggedin, util.isStaff, upload.single('data'), (req, res) => {
+router.post('/:cafeId/:itemId/img', upload.single('data'), (req, res) => {
   Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
     if (err) return res.status(500).json(util.successFalse(err));
     if (!cafe) return res.status(404).json(util.successFalse(null, '존재하지 않는 카페입니다.'));
@@ -447,7 +447,7 @@ router.post('/:cafeId/:itemId/img', util.isLoggedin, util.isStaff, upload.single
 
 
 // 리뷰 등록
-router.post('/:cafeId/reviews', util.isLoggedin, (req, res) => {
+router.post('/:cafeId/reviews', (req, res) => {
 	Cafe.findOne({cafeId: req.params.cafeId}, (err, cafe) => {
 		if (err) return res.status(500).json(util.successFalse(err));
     if (!cafe) return res.status(404).json(util.successFalse(null, '존재하지 않는 카페입니다.'));
@@ -534,7 +534,7 @@ router.post('/atonce', (req, res) => {
 
 
 // 메뉴 여러개 한꺼번에 등록
-router.post('/:cafeId/itemlist', util.isLoggedin, util.isStaff, (req, res) => {
+router.post('/:cafeId/itemlist', (req, res) => {
   Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
     if (err) return res.status(500).json(util.successFalse(err)); 
     if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
