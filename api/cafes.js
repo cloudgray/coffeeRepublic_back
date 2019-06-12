@@ -195,10 +195,12 @@ router.put('/:cafeId', (req, res) => {
   Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
     if (err) return res.status(400).json(util.successFalse(err, '잘못된 요청입니다.')); 
     if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
-    
-    for (var p in req.body) {
-			cafe[p] = req.body[p];
-		}
+    		
+    cafe.name = req.body.name;
+		cafe.address = req.body.name;
+		cafe.tel = req.body.name;
+		cafe.maxOrderNum = req.body.name;
+		cafe.shopHours = req.body.name;
     cafe.geometry.coordinates = [req.body.longitude,req.body.latitude];
     cafe.updated_at = Date.now();
     
@@ -208,6 +210,9 @@ router.put('/:cafeId', (req, res) => {
     }); 
   });
 });
+
+
+
 
 
 // 카페 탈퇴
