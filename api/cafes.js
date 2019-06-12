@@ -199,6 +199,7 @@ router.put('/:cafeId', (req, res) => {
 		if (req.body.name) cafe.name = req.body.name;
 		if (req.body.address) cafe.address = req.body.address;
 		if (req.body.tel) cafe.tel = req.body.tel;
+		if (req.body.signatureItems) cafe.signatureItems = req.body.signatureItems;
 		if (req.body.maxOrderNum) cafe.maxOrderNum = req.body.maxOrderNum;
 		if (req.body.shopHours) cafe.shopHours = req.body.shopHours;
     if (req.body.longitude && req.body.latitude) cafe.geometry.coordinates = [req.body.longitude,req.body.latitude];
@@ -302,9 +303,10 @@ router.put('/:cafeId/items/:itemId', (req, res) => {
       if (err) return res.status(500).json(util.successFalse(err));
       if (!item) return res.status(404).json(util.successFalse(null, '등록된 메뉴가 아닙니다.'));
 
-      for (var p in req.body) {
-        item[p] = req.body[p];
-      }
+      if (req.body.name) item.name = req.body.name;
+			if (req.body.price) item.price = req.body.price;
+			if (req.body.options) item.tel = req.body.options;
+			cafe.updated_at = Date.now();
       
       item.save()
         .then(item => res.status(200).json(util.successTrue(item)))
@@ -454,7 +456,7 @@ router.post('/:cafeId/:itemId/img', upload.single('data'), (req, res) => {
 });
 
 
-// 리뷰 등록
+// 리뷰 작성
 router.post('/:cafeId/reviews', (req, res) => {
 	Cafe.findOne({cafeId: req.params.cafeId}, (err, cafe) => {
 		if (err) return res.status(500).json(util.successFalse(err));
@@ -470,6 +472,7 @@ router.post('/:cafeId/reviews', (req, res) => {
 			newReview.cafeName = cafe.name;
 			newReview.userId = req.decoded.userId;
 			newReview.nickname = req.decoded.nickname;
+			newReview.content = req.body.content;
 			
 			newReview.save()
 				.then(review => res.status(200).json(util.successTrue(review)))
