@@ -84,7 +84,7 @@ router.get('/search', (req, res) => {
 							name:cafes[i].name,
 							rating:cafes[i].rating,
 							reviews:cafes[i].reviews,
-							signatures:cafes[i].signatureItems,
+							signatures:cafes[i].signatures,
 							img:cafes[i].profileImg,
 							congestion: congestion
 						}	
@@ -131,7 +131,7 @@ router.get('/', (req, res) => {
 				name:cafes[i].name,
 				rating:cafes[i].rating,
 				reviews:cafes[i].reviews,
-				signatures:cafes[i].signatureItems,
+				signatures:cafes[i].signatures,
 				img:cafes[i].profileImg,
 				geometry:cafes[i].geometry,
 				congestion: congestion
@@ -166,7 +166,7 @@ router.post('/near', (req, res) => {
 				name:cafes[i].name,
 				rating:cafes[i].rating,
 				reviews:cafes[i].reviews,
-				signatures:cafes[i].signatureItems,
+				signatures:cafes[i].signatures,
 				img:cafes[i].profileImg,
 				geometry:cafes[i].geometry,
 				congestion: congestion
@@ -199,7 +199,7 @@ router.put('/:cafeId', (req, res) => {
 		if (req.body.name) cafe.name = req.body.name;
 		if (req.body.address) cafe.address = req.body.address;
 		if (req.body.tel) cafe.tel = req.body.tel;
-		if (req.body.signatureItems) cafe.signatureItems = req.body.signatureItems;
+		if (req.body.signatures) cafe.signatures = req.body.signatures;
 		if (req.body.maxOrderNum) cafe.maxOrderNum = req.body.maxOrderNum;
 		if (req.body.shopHours) cafe.shopHours = req.body.shopHours;
 		if (req.body.rating) cafe.rating = req.body.rating;
@@ -274,7 +274,7 @@ router.post('/:cafeId/items', (req, res) => {
 
 
 // 대표 메뉴 등록
-router.put('/:cafeId/signature/:itemId',  (req, res) => {
+router.put('/:cafeId/signatures/:itemId',  (req, res) => {
 	Cafe.findOne({cafeId:req.params.cafeId}, (err, cafe) => {
 		if (err) return res.status(500).json(util.successFalse(err)); 
     if (!cafe) return res.status(404).json(util.successFalse(null, '등록되지 않은 카페입니다.'));
@@ -283,9 +283,9 @@ router.put('/:cafeId/signature/:itemId',  (req, res) => {
 			if (err) return res.status(500).json(util.successFalse(err)); 
     	if (!item) return res.status(404).json(util.successFalse(null, '등록되지 않은 메뉴입니다.'));
 			
-			cafe.signatureItems.push(item.name);
+			cafe.signatures.push(item.name);
 			cafe.save()
-				.then(cafe => res.status(200).json(util.successTrue(cafe.signatureItems)))
+				.then(cafe => res.status(200).json(util.successTrue(cafe.signatures)))
 				.catch(err => res.status(500).json(util.successFalse(err)));				
 		});
 	});
