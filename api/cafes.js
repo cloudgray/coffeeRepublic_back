@@ -202,6 +202,7 @@ router.put('/:cafeId', (req, res) => {
 		if (req.body.signatureItems) cafe.signatureItems = req.body.signatureItems;
 		if (req.body.maxOrderNum) cafe.maxOrderNum = req.body.maxOrderNum;
 		if (req.body.shopHours) cafe.shopHours = req.body.shopHours;
+		if (req.body.rating) cafe.rating = req.body.rating;
     if (req.body.longitude && req.body.latitude) cafe.geometry.coordinates = [req.body.longitude,req.body.latitude];
     cafe.updated_at = Date.now();
     
@@ -211,8 +212,6 @@ router.put('/:cafeId', (req, res) => {
     }); 
   });
 });
-
-
 
 
 
@@ -333,6 +332,41 @@ router.delete('/:cafeId/items/:itemId', (req, res) => {
     });   
   });   
 });
+
+// 리뷰 작성
+router.post('/:cafeId/reviews', (req, res) => {
+	Cafe.findOne({cafeId: req.params.cafeId}, (err, cafe) => {
+		if (err) return res.status(500).json(util.successFalse(err));
+    if (!cafe) return res.status(404).json(util.successFalse(null, '존재하지 않는 카페입니다.'));
+		
+		User.findOne({userId: req.decoded.userId}, (req, res) => {
+			if (err) return res.status(500).json(util.successFalse(err));
+    	if (!user) return res.status(404).json(util.successFalse(null, '존재하지 않는 유저입니다.'));
+			
+			var newReview = new Review();
+			newReview.reviewId = randomstring.generate(16);
+			newReview.cafeId = req.params.cafeId;
+			newReview.cafeName = cafe.name;
+			newReview.userId = req.decoded.userId;
+			newReview.nickname = req.decoded.nickname;
+			newReview.content = req.body.content;
+			newReview.rating = req.body.rating;
+			
+			newReview.save()
+				.then(review => res.status(200).json(util.successTrue(review)))
+				.catch(err => res.status(500).json(util.successFalse(err)));
+		});
+		
+		cafe.reviews++;
+		if (!cafe.rating) cafe.rating = req.body.rating; 
+		cafe.rating = ((cafe.rating + req.body.rating) / reviews).toFixed(1);
+
+		cafe.save()
+			.then(cafe => res.status(200).json(util.successTrue()))
+			.catch(err => res.status(500).json(util.successFalse(err)));
+	});
+});
+
 
 
 
@@ -456,35 +490,7 @@ router.post('/:cafeId/:itemId/img', upload.single('data'), (req, res) => {
 });
 
 
-// 리뷰 작성
-router.post('/:cafeId/reviews', (req, res) => {
-	Cafe.findOne({cafeId: req.params.cafeId}, (err, cafe) => {
-		if (err) return res.status(500).json(util.successFalse(err));
-    if (!cafe) return res.status(404).json(util.successFalse(null, '존재하지 않는 카페입니다.'));
-		
-		User.findOne({userId: req.decoded.userId}, (req, res) => {
-			if (err) return res.status(500).json(util.successFalse(err));
-    	if (!user) return res.status(404).json(util.successFalse(null, '존재하지 않는 유저입니다.'));
-			
-			var newReview = new Review();
-			newReview.reviewId = randomstring.generate(16);
-			newReview.cafeId = req.params.cafeId;
-			newReview.cafeName = cafe.name;
-			newReview.userId = req.decoded.userId;
-			newReview.nickname = req.decoded.nickname;
-			newReview.content = req.body.content;
-			
-			newReview.save()
-				.then(review => res.status(200).json(util.successTrue(review)))
-				.catch(err => res.status(500).json(util.successFalse(err)));
-		});
-		
-		cafe.reviews++;
-		cafe.save()
-			.then(cafe => res.status(200).json(util.successTrue()))
-			.catch(err => res.status(500).json(util.successFalse(err)));
-	});
-});
+
 
 
 
