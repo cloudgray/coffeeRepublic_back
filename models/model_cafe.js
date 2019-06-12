@@ -15,7 +15,7 @@ var CafeSchema = new mongoose.Schema({
 	signatures: [{type:String}],
   profileImg: {type: String, default: ''},
   images: [{type: String}],
-	rating: {type: Number, default: 5},
+	rating: {type: Number, default: 3},
 	reviews: {type: Number},
   maxOrderNum:{type: Number, default:5},
 	shopHours: {type: String, default: ""},

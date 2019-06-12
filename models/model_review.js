@@ -8,7 +8,7 @@ var ReviewSchema = new Schema({
 	userId: {type: String},
 	nickname: {type: String},
 	content: {type: String},
-	rating: {type: Number, default : 5},
+	rating: {type: Number, default : 3},
 	up: {type: Number, default : 0},
 	created_at: {type: Date, index: {unique: false}, 'default': Date.now},
 	updated_at: {type: Date, index: {unique: false}, 'default': Date.now}

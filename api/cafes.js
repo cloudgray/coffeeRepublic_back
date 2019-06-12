@@ -202,7 +202,6 @@ router.put('/:cafeId', (req, res) => {
 		if (req.body.signatures) cafe.signatures = req.body.signatures;
 		if (req.body.maxOrderNum) cafe.maxOrderNum = req.body.maxOrderNum;
 		if (req.body.shopHours) cafe.shopHours = req.body.shopHours;
-		if (req.body.rating) cafe.rating = req.body.rating;
     if (req.body.longitude && req.body.latitude) cafe.geometry.coordinates = [req.body.longitude,req.body.latitude];
     cafe.updated_at = Date.now();
     
@@ -369,17 +368,17 @@ router.post('/:cafeId/reviews', (req, res) => {
 
 
 
-router.put('/cafeschema/fieldtype', (req, res) => {
-	Cafe.find( { rating : { $type : 4 } }, (err, cafes) => {
-		if (err) return res.status(500).json(util.successFalse(err));
-		
-		cafes.forEach( cafe => {   
-			cafe.rating = new Number(cafe.rating); 
-			cafe.save();
-		});
-		res.status(200).json(util.successTrue(cafes));
-	});
+router.put('/rating/atonce', (req, res) => {
+	Cafe.find({}, (err, cafes) => {
+		for (var i in cafes) {
+			cafes[i].rating = 3;
+		}
+		cafes.save()
+			.then (cafes => res.status(200).json(util.successTrue(cafes)))
+			.catch(err => res.status(500).son(util.successFalse(err)));
+	});	
 });
+
 
 
 /*
