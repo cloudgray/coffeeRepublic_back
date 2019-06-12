@@ -374,7 +374,7 @@ router.put('/cafeschema/fieldtype', (req, res) => {
 		if (err) return res.status(500).json(util.successFalse(err));
 		
 		cafes.forEach( cafe => {   
-			cafe.rating = new NumberInt(cafe.rating); 
+			cafe.rating = new Number(cafe.rating); 
 			cafe.save();
 		});
 		res.status(200).json(util.successTrue(cafes));
