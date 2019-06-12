@@ -14,7 +14,7 @@ const util = require('../util');
 
 
 // 카페 등록 - 스테프로 로그인해야 한다
-router.post('/', (req, res) => {
+router.post('/', util.isLoggedin, (req, res) => {
 	console.log('POST api/cafes called');
   
   User.findOne({userId:req.decoded.userId}, (err, user) => {
@@ -333,7 +333,7 @@ router.delete('/:cafeId/items/:itemId', (req, res) => {
 });
 
 // 리뷰 작성
-router.post('/:cafeId/reviews', (req, res) => {
+router.post('/:cafeId/reviews', util.isLoggedin, (req, res) => {
 	Cafe.findOne({cafeId: req.params.cafeId}, (err, cafe) => {
 		if (err) return res.status(500).json(util.successFalse(err));
     if (!cafe) return res.status(404).json(util.successFalse(null, '존재하지 않는 카페입니다.'));
