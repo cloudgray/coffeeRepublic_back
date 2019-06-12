@@ -369,7 +369,7 @@ router.post('/:cafeId/reviews', (req, res) => {
 
 
 
-router.put('/converttype', (req, res) => {
+router.put('/cafeschema/fieldtype', (req, res) => {
 	Cafe.find( { rating : { $type : 4 } } ), (err, cafes) => {
 		if (err) return res.status(500).json(util.successFalse(err));
 		
