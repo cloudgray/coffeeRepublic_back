@@ -369,6 +369,18 @@ router.post('/:cafeId/reviews', (req, res) => {
 
 
 
+router.put('/converttype', (req, res) => {
+	Cafe.find( { rating : { $type : 4 } } ), (err, cafes) => {
+		if (err) return res.status(500).json(util.successFalse(err));
+		
+		cafes.forEach( cafe => {   
+			cafe.rating = new NumberInt(cafe.rating); 
+			cafe.save();
+		});
+		res.status(200).json(util.successTrue(cafes));
+	};
+});
+
 
 /*
 * 이미지 업로드 관련
