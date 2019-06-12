@@ -372,10 +372,9 @@ router.put('/rating/atonce', (req, res) => {
 	Cafe.find({}, (err, cafes) => {
 		for (var i in cafes) {
 			cafes[i].rating = 3;
+			cafes[i].save();
 		}
-		cafes.save()
-			.then (cafes => res.status(200).json(util.successTrue(cafes)))
-			.catch(err => res.status(500).son(util.successFalse(err)));
+		res.status(200).json(util.successTrue());
 	});	
 });
 
