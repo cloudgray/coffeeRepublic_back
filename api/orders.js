@@ -29,11 +29,11 @@ router.post('/push/send', util.isLoggedin, (req, res) => {
 			to: user.fcmToken,
 			notification: {
 				title: '음료가 준비되었습니다.',
-				body: req.body.cafe + '에서 주문하신 ' + req.body.item + '이(가) 준비되었습니다!'
+				body: req.body.cafe + '에서 주문하신\n' + req.body.item + '이(가) 준비되었습니다!'
 			},
 			data: {
 				title: '음료가 준비되었습니다.',
-				body: req.body.cafe + '에서 주문하신 ' + req.body.item + '이(가) 준비되었습니다!'
+				body: req.body.cafe + '에서 주문하신\n' + req.body.item + '이(가) 준비되었습니다!'
 			}
 		}
 		
