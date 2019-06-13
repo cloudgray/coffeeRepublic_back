@@ -36,14 +36,12 @@ router.get('/push/send', util.isLoggedin, (req, res) => {
 		fcm.send(message, (err, res) => {
 			if (err) {
 				console.log("Something has gone wrong!");
+				res.json(util.successFalse(err));
 			} else {
 				console.log("Successfully sent with response: ", res);
+				res.status(200).json(util.successTrue());
 			}
 		});
-
-		var data = {
-			msg:"주문하신 아메리카노 ICE가 완성되었습니다!"
-		};
 	});
 });
 
