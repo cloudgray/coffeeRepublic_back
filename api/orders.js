@@ -18,8 +18,8 @@ var queues = util.queues;
 * 사장이 메뉴가 완성되었을 때 사용자에게 보내는 푸시 알림
 */
  
-router.post('/push/send', util.isLoggedin, (req, res) => {
-	User.findOne({userId:req.decoded.userId}, (err, user) => {
+router.post('/:nickname/push/send', (req, res) => {
+	User.findOne({userId:req.params.nickname}, (err, user) => {
 		if (err) return res.status(500).json(util.successFalse('설마 이 부분에서 난 에러는 아니겠지'));
 		if (!user) return res.status(200).json(util.successFalse('존재하지 않는 사용자입니다.'));
 		
