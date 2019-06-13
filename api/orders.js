@@ -39,7 +39,7 @@ router.post('/:nickname/push/send', (req, res) => {
 		
 		fcm.send(message, (err, res) => {
 			if (err) {
-				console.log("Something has gone wrong!");
+				console.log(err);
 			} else {
 				console.log("Successfully sent with response: ", res);
 			}
