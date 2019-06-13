@@ -161,7 +161,9 @@ router.post('/:userId/test/complete', util.isLoggedin, (req, res) => {
 	User.findOne({userId:req.params.userId}, (err, user) => {
 		if (err) return res.status(500).json(util.successFalse('설마 이 부분에서 난 에러는 아니겠지'));
 		if (!user) return res.status(200).json(util.successFalse('존재하지 않는 사용자입니다.'));
-			
+		
+		console.log(user);
+		
 		var message = new fcm.Message({
 			priority: 'high',
 			timeToLive: 10
