@@ -18,7 +18,7 @@ var queues = util.queues;
 * 사장이 메뉴가 완성되었을 때 사용자에게 보내는 푸시 알림
 */
  
-router.get('/push/send', util.isLoggedin, (req, res) => {
+router.post('/push/send', util.isLoggedin, (req, res) => {
 	User.findOne({userId:req.decoded.userId}, (err, user) => {
 		if (err) return res.status(500).json(util.successFalse('설마 이 부분에서 난 에러는 아니겠지'));
 		if (!user) return res.status(200).json(util.successFalse('존재하지 않는 사용자입니다.'));
@@ -29,17 +29,19 @@ router.get('/push/send', util.isLoggedin, (req, res) => {
 			to: user.fcmToken,
 			notification: {
 				title: '음료가 준비되었습니다.',
-				body: '주문하신 아메리카노ICE 이(가) 준비되었습니다.'
+				body: req.body.cafe + '에서 주문하신 ' + req.body.item + '이(가) 준비되었습니다!'
+			},
+			data: {
+				title: '음료가 준비되었습니다.',
+				body: req.body.cafe + '에서 주문하신 ' + req.body.item + '이(가) 준비되었습니다!'
 			}
 		}
 		
 		fcm.send(message, (err, res) => {
 			if (err) {
 				console.log("Something has gone wrong!");
-				res.json(util.successFalse(err));
 			} else {
 				console.log("Successfully sent with response: ", res);
-				res.status(200).json(util.successTrue());
 			}
 		});
 	});
@@ -119,6 +121,7 @@ router.post('/:cafeId', util.isLoggedin, (req, res) => {
 });
 
 
+/*
 // 주문 확정하기 (손님) 
 router.post('/:cafeId/:orderId', util.isLoggedin, (req, res) => {
 	var pendingOrders = queues[req.params.cafeId].pendingOrders; 
@@ -146,6 +149,7 @@ router.post('/:cafeId/:orderId', util.isLoggedin, (req, res) => {
 		}  
   }
 });
+*/
 
 
 // 주문 수락하기 (카페)
