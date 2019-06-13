@@ -153,6 +153,38 @@ router.put('/:cafeId/:orderId', util.isLoggedin, util.isStaff, (req, res) => {
 });
 
 
+
+/*
+* 사장이 메뉴가 완성되었을 때 사용자에게 보내는 푸시 알림
+*/
+ 
+router.post('/:cafeId/:userId/complete', (req, res) => {
+	User.findOne({userId:req.param.userId}, (err, user) => {
+		if (err) return res.status(500).json(util.successFalse(err));
+		if (!user) return res.status(200).json(util.successFalse());
+			
+		var message = new fcm.Message({
+			priority: 'high',
+			timeToLive: 10
+		});
+
+		var data = {
+			msg:"주문하신 아메리카노 ICE가 완성되었습니다!"
+		};
+
+		message.addData('command', 'show');
+		message.addData('type', 'application/json');
+		message.addData('data', data);
+		
+		sender.send(message, user.fcmToken, (err, result) => {
+			if (err) return res.status(500).json(util.successFalse(err));
+			res.status(200).json(util.successTrue(result));
+		});
+	});
+});
+
+
+
 // 현재 진행중인 주문정보 가져오기(유저)
 router.get('/:cafeId/myorder', (req, res) => {
   var pendingOrders = queues[req.params.cafeId].pendingOrders;
