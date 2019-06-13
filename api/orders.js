@@ -9,8 +9,7 @@ const Item = require('../models/model_item');
 const Order = require('../models/model_order');
 const moment = require('moment');
 
-// push msg sender
-var sender = new fcm.Sender(config.fcm_api_key);
+
 
 // { 카페 아이디 : 주문 큐 } - 전역변수로 사용하기 위해 util.js 에 빈 객체 하나 만들어둠
 var queues = util.queues;
@@ -160,7 +159,7 @@ router.put('/:cafeId/:orderId', util.isLoggedin, util.isStaff, (req, res) => {
  
 router.post('/:userId/test/complete', util.isLoggedin, (req, res) => {
 	User.findOne({userId:req.params.userId}, (err, user) => {
-		if (err) return res.status(500).json(util.successFalse(err));
+		if (err) return res.status(500).json(util.successFalse('설마 이 부분에서 난 에러는 아니겠지'));
 		if (!user) return res.status(200).json(util.successFalse('존재하지 않는 사용자입니다.'));
 			
 		var message = new fcm.Message({
@@ -175,6 +174,9 @@ router.post('/:userId/test/complete', util.isLoggedin, (req, res) => {
 		message.addData('command', 'show');
 		message.addData('type', 'application/json');
 		message.addData('data', data);
+		
+		// push msg sender
+		var sender = new fcm.Sender(config.fcm_api_key);
 		
 		sender.send(message, user.fcmToken, (err, result) => {
 			if (err) return res.status(500).json(util.successFalse(err));
