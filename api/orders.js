@@ -158,10 +158,10 @@ router.put('/:cafeId/:orderId', util.isLoggedin, util.isStaff, (req, res) => {
 * 사장이 메뉴가 완성되었을 때 사용자에게 보내는 푸시 알림
 */
  
-router.post('/:cafeId/:userId/complete', (req, res) => {
-	User.findOne({userId:req.param.userId}, (err, user) => {
+router.post('/:userId/complete', (req, res) => {
+	User.findOne({userId:req.params.userId}, (err, user) => {
 		if (err) return res.status(500).json(util.successFalse(err));
-		if (!user) return res.status(200).json(util.successFalse());
+		if (!user) return res.status(200).json(util.successFalse('존재하지 않는 사용자입니다.'));
 			
 		var message = new fcm.Message({
 			priority: 'high',
