@@ -40,10 +40,8 @@ router.post('/:nickname/push/send', (req, res) => {
 		fcm.send(message, (err, ressponse) => {
 			if (err) {
 				console.log(err);
-				res.status(500).json(util.successFalse());
 			} else {
 				console.log("Successfully sent with response: ", response);
-				res.status(200).json(util.successTrue())
 			}
 		});
 	});
