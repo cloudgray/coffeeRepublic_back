@@ -7,8 +7,7 @@
 <p>mkdir public/uploads 
   <br>mkdir config 
   <br>config 폴더 안에 config.js 생성
-  <br><br>
-  
+  <br>
   <br>module.exports = {
   <br>  server_port: YOUR_SERVER_PORT,
   <br>  server_url:'YOUR_SERVER_IP',
