@@ -5,6 +5,6 @@
 
 <h3>clone시 추가사항</h3>
 <p>mkdir public/uploads 
-  </ br>mkdir config 
+  <br>mkdir config 
   config 폴더 안에 config.js 생성 
 </p>
