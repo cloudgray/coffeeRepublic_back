@@ -9,7 +9,7 @@
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.15.2",
     "cors": "^2.8.5",
-    "express": "^4.14.0",
+    "express": "^4.17.3",
     "fcm-node": "^1.5.1",
     "fs": "0.0.1-security",
     "jsonwebtoken": "^8.5.1",
